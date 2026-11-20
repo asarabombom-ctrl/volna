@@ -1,0 +1,19 @@
+{
+  "name": "volna-desktop",
+  "productName": "Volna",
+  "version": "1.0.0",
+  "description": "Волна — музыка, тексты и клипы",
+  "main": "main.js",
+  "author": "Volna",
+  "license": "UNLICENSED",
+  "scripts": { "dist": "electron-builder --win --publish never" },
+  "devDependencies": { "electron": "^33.2.0", "electron-builder": "^25.1.8" },
+  "build": {
+    "appId": "app.volna.player",
+    "productName": "Volna",
+    "files": ["main.js", "icon.png"],
+    "win": { "target": ["nsis", "portable"], "icon": "icon.png" },
+    "nsis": { "oneClick": true, "artifactName": "Volna-Setup.exe", "shortcutName": "Волна" },
+    "portable": { "artifactName": "Volna-Portable.exe" }
+  }
+}

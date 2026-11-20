@@ -6,6 +6,11 @@
 <meta name="theme-color" content="#0b0812">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Волна">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
 <title>Волна</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -320,6 +325,47 @@ button:active{transform:scale(.96)}
  .content{border-radius:16px}
 }
 @media(prefers-reduced-motion:reduce){.fade,.dlg,#modal.open{animation:none}}
+
+/* --- karaoke stage: beat cover, blurred bg, clip mode --- */
+#lyrFull{--beat:0}
+.lbg{position:absolute;inset:-12%;background:center/cover no-repeat;filter:blur(70px) saturate(1.5);opacity:.5;transform:scale(calc(1.02 + var(--beat)*.05));pointer-events:none;transition:opacity .8s}
+.lmain{position:relative;flex:1;display:flex;min-height:0}
+.lstage{flex:0 0 min(40%,560px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:0 0 6vh clamp(18px,5vw,64px)}
+.lcov{position:relative;width:min(100%,50vh);aspect-ratio:1;border-radius:24px;background:#222 center/cover no-repeat;transform:scale(calc(1 + var(--beat)*.06)) rotate(calc(var(--beat)*-.6deg));box-shadow:0 30px 80px rgba(0,0,0,.5);will-change:transform}
+.lcov::before{content:"";position:absolute;inset:-7%;border-radius:32px;background:var(--glow,var(--acc));filter:blur(46px);opacity:calc(.18 + var(--beat)*.6);z-index:-1}
+.lcov::after{content:"";position:absolute;inset:0;border-radius:inherit;border:2px solid rgba(255,255,255,.7);opacity:calc(var(--beat)*.7);transform:scale(calc(1 + (1 - var(--beat))*.12))}
+.lcov i{position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,rgba(255,255,255,.22),transparent 45%);pointer-events:none}
+.leq{display:flex;gap:5px;align-items:flex-end;height:34px}
+.leq b{width:6px;border-radius:3px;background:rgba(255,255,255,.85);height:calc(6px + var(--beat)*var(--h,20px));transition:height .08s}
+.ly.on{transform:scale(calc(1 + var(--beat)*.018));transform-origin:0 50%}
+.lmode{background:rgba(0,0,0,.22);border-color:rgba(255,255,255,.14)}
+.lmode button{color:rgba(255,255,255,.75)}
+.lmode button.on{background:#fff;color:#111}
+#lyrFull.clipv{background:transparent}
+#lyrFull.clipv .lbg,#lyrFull.clipv .lstage{display:none}
+#lyrFull.clipv::before{background:linear-gradient(180deg,rgba(0,0,0,.6),rgba(0,0,0,.25) 35%,rgba(0,0,0,.35) 65%,rgba(0,0,0,.75))}
+#lyrFull.clipv .ly{text-shadow:0 2px 18px rgba(0,0,0,.45)}
+.ytbox.clipbg{pointer-events:none}
+#clipbox{pointer-events:none}
+@media(max-width:1150px){.lstage{flex-basis:38%}}
+@media(max-width:760px){.lstage{display:none}.lbg{opacity:.65}.lmode button{padding:0 11px;font-size:12px;min-height:32px}}
+@media(prefers-reduced-motion:reduce){.lcov,.lbg,.ly.on{transform:none}}
+/* --- devices & apps --- */
+.devs{display:grid;gap:8px;margin:14px 0 4px;text-align:left}
+.dev{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+.dev .di{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(255,255,255,.08);flex:none}
+.dev .di svg{width:18px;height:18px}
+.dev .dn{flex:1;min-width:0}.dev .dn b{display:block;font-size:14px}.dev .dn span{font-size:12px;color:var(--mut)}
+.dev .me{font-size:11px;font-weight:800;color:var(--acc2,var(--acc));text-transform:uppercase;letter-spacing:.04em}
+.dev button{font-size:12px;font-weight:700;color:var(--mut);padding:6px 10px;border-radius:999px;border:1px solid var(--line)}
+.dev button:hover{color:#fff;border-color:rgba(255,255,255,.3)}
+.apps{display:grid;gap:10px;margin-top:14px;text-align:left}
+.app{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--line);color:inherit;text-decoration:none}
+.app:hover{background:rgba(255,255,255,.09)}
+.app .di{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 35%,transparent);flex:none;font-size:20px}
+.app .dn{flex:1}.app .dn b{display:block}.app .dn span{font-size:12px;color:var(--mut)}
+.howto{font-size:13px;color:var(--mut);margin:6px 0 0;padding-left:18px;line-height:1.6}
+.linkbtn{background:none;border:0;color:var(--acc2,var(--acc));font-weight:700;font-size:13px;cursor:pointer;padding:4px}
 </style>
 </head>
 <body>
@@ -421,13 +467,18 @@ button:active{transform:scale(.96)}
 </div>
 
 <div id="lyrFull" aria-label="Текст песни">
+  <div class="lbg" id="lBg"></div>
   <div class="lh">
     <div class="thumb" id="lArt"></div>
     <div class="grow"><div class="ti" id="lTi">—</div><div class="ar" id="lAr" style="color:rgba(255,255,255,.7)"></div></div>
+    <div class="seg lmode" id="lMode" role="tablist" aria-label="Фон текста"><button data-m="cover">Обложка</button><button data-m="clip">Клип</button></div>
     <button class="pill ghost" id="lyrFix">Найти вручную</button>
     <button class="round" id="lyrClose" title="Закрыть (Esc)" style="background:rgba(0,0,0,.25)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>
-  <div id="lyrBody"><p class="lmsg">Включи трек — и текст побежит в такт.</p></div>
+  <div class="lmain">
+    <div class="lstage" aria-hidden="true"><div class="lcov" id="lCov"><i></i></div><div class="leq"><b style="--h:14px"></b><b style="--h:26px"></b><b style="--h:20px"></b><b style="--h:30px"></b><b style="--h:16px"></b><b style="--h:24px"></b><b style="--h:12px"></b></div></div>
+    <div id="lyrBody"><p class="lmsg">Включи трек — и текст побежит в такт.</p></div>
+  </div>
   <div class="lf"><input type="range" id="pos4" min="0" max="1000" value="0" aria-label="Позиция"><div class="lf-c"><span id="c4">0:00</span><div><button class="ib" data-prev title="Назад"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button><button class="play" data-pp title="Играть/пауза"><svg viewBox="0 0 24 24" fill="currentColor" class="ppI"><path d="M7 4v16l13-8z"/></svg></button><button class="ib" data-next title="Вперёд"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button></div><span id="t4">0:00</span></div></div>
 </div>
 
@@ -449,6 +500,7 @@ button:active{transform:scale(.96)}
   </div>
 </section>
 <div class="ytbox" id="ytbox"><div id="yt"></div></div>
+<div class="ytbox" id="clipbox"><div id="clipYT"></div></div>
 
 <div id="toast" role="status" aria-live="polite"></div><div id="modal"></div>
 <div class="pop glass" id="themePop"></div>
@@ -579,7 +631,7 @@ function normP(it,clips){
  let title=decode(it.title||''),artist=(it.uploaderName||'').replace(/ - Topic$/,'');
  if(clips){const m=title.split(/\s+[-–—]\s+/);if(m.length>1){artist=m[0];title=m.slice(1).join(' - ')}artist=artist.replace(/VEVO$/i,'').trim()}
  const art=!clips&&/googleusercontent|=w\d+-h\d+/.test(it.thumbnail||'')?it.thumbnail.replace(/=w\d+-h\d+/,'=w544-h544'):`https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
- return{id:'y'+vid,kind:'yt',vid,title:cleanT(title),artist,album:'',art,dur:it.duration>0?it.duration:0};
+ return{id:'y'+vid,kind:'yt',vid,clip:!!clips,title:cleanT(title),artist,album:'',art,dur:it.duration>0?it.duration:0};
 }
 async function ytFind(q,type){
  const clips=type==='clips';
@@ -721,12 +773,12 @@ async function play(t){
  document.body.classList.toggle('yt',!!vid);
  if(vid)ytLoad(vid);else{aud.src=t.src;if(t.kind==='local')initAudio();aud.play().catch(()=>{$('nAr').textContent='Не удалось воспроизвести'})}
  const bg=artCss(t);
- $('bigArt').innerHTML='';[$('bigArt'),$('mArt'),$('lArt'),$('shArt'),$('shBg')].forEach(el=>el.style.backgroundImage=bg);$('shFrom').textContent=$('title').textContent;
+ $('bigArt').innerHTML='';[$('bigArt'),$('mArt'),$('lArt'),$('shArt'),$('shBg'),$('lCov'),$('lBg')].forEach(el=>el.style.backgroundImage=bg);$('shFrom').textContent=$('title').textContent;
  for(const id of['nTi','mTi','lTi','sTi'])$(id).textContent=t.title;for(const id of['nAr','mAr','lAr','sAr'])$(id).textContent=t.artist;
  document.title=t.title+' — Волна';
  if('mediaSession'in navigator){try{navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist,artwork:t.art?[{src:t.art,sizes:'512x512'}]:[]})}catch{}}
  if(t.kind!=='local'){const R=S.lists.recent.filter(x=>x.id!==t.id);R.unshift(strip(t));S.lists.recent=R.slice(0,50);store.set('recent',S.lists.recent)}
- coverColor(t);likeBtn();render();loadLyrics(t);
+ coverColor(t);likeBtn();render();loadLyrics(t);loadBpm(t);clipReset();
 }
 function ended(){if(S.repeat){seek(0);isYT()?ytp.playVideo():aud.play()}else step(1)}
 function step(d){if(!S.queue.length)return;if(S.shuffle&&d>0)S.qi=Math.random()*S.queue.length|0;else S.qi=(S.qi+d+S.queue.length)%S.queue.length;play(S.queue[S.qi])}
@@ -742,7 +794,7 @@ $('vol').oninput=e=>{volume=+e.target.value;aud.volume=volume/100;ytp?.setVolume
 let seeking=false;
 ['pos','pos2','pos3','pos4'].forEach(id=>{$(id).addEventListener('input',e=>{seeking=true;setP(e.target,e.target.value/10)});$(id).addEventListener('change',e=>{const d=cdur();if(d)seek(e.target.value/1000*d);seeking=false})});
 let lastP=null;
-function uiState(){const p=paused();if(p===lastP)return;lastP=p;$$('.ppI').forEach(s=>s.innerHTML=p?'<path d="M7 4v16l13-8z"/>':'<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>');if(S.view!=='settings')render()}
+function uiState(){const p=paused();if(p===lastP)return;lastP=p;if('mediaSession'in navigator)try{navigator.mediaSession.playbackState=p?'paused':'playing'}catch{}$$('.ppI').forEach(s=>s.innerHTML=p?'<path d="M7 4v16l13-8z"/>':'<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>');if(S.view!=='settings')render()}
 let lastUi=0;
 function tick(now){
  try{
@@ -752,7 +804,7 @@ function tick(now){
     if(!seeking&&d){const p=t/d*1000;for(const id of['pos','pos2','pos3','pos4']){$(id).value=p;setP($(id),p/10)}}$('barLine').style.width=(d?t/d*100:0)+'%';uiState()}
    syncLyrics(t);
   }
-  drawViz();placeYT();
+  drawViz();beatTick(now);clipSync(now);placeYT();
  }catch(e){console.error(e)}
  requestAnimationFrame(tick);
 }
@@ -765,11 +817,11 @@ document.addEventListener('keydown',e=>{
 
 /* ================= COVER COLOUR ================= */
 function coverColor(t){
- S.coverCol=null;$('lyrFull').style.setProperty('--lbg',`color-mix(in srgb,${curAcc()} 45%,#111)`);
+ S.coverCol=null;$('lyrFull').style.setProperty('--lbg',`color-mix(in srgb,${curAcc()} 45%,#111)`);$('lyrFull').style.removeProperty('--glow');
  if(!t.art)return;const img=new Image();img.crossOrigin='anonymous';
  img.onload=()=>{try{const c=document.createElement('canvas');c.width=c.height=24;const g=c.getContext('2d');g.drawImage(img,0,0,24,24);const px=g.getImageData(0,0,24,24).data;let best=null,bs=-1;
   for(let i=0;i<px.length;i+=4){const r=px[i],gg=px[i+1],bb=px[i+2],mx=Math.max(r,gg,bb),mn=Math.min(r,gg,bb),s=(mx-mn)*(mx>40?1:.2);if(s>bs){bs=s;best=[r,gg,bb]}}
-  if(best&&S.cur===t&&bs>30){S.coverCol=1;$('lyrFull').style.setProperty('--lbg',`rgb(${best.map(v=>Math.round(v*.55)).join(',')})`)}}catch{}};
+  if(best&&S.cur===t&&bs>30){S.coverCol=1;$('lyrFull').style.setProperty('--lbg',`rgb(${best.map(v=>Math.round(v*.55)).join(',')})`);$('lyrFull').style.setProperty('--glow',`rgb(${best.join(',')})`)}}catch{}};
  img.src=t.art;
 }
 
@@ -908,10 +960,25 @@ function rawSave(){try{localStorage.setItem('likes',JSON.stringify(S.lists.likes
 function mergeById(a=[],b=[]){const m=new Map();for(const x of[...(a||[]),...(b||[])])if(x&&x.id&&!m.has(x.id))m.set(x.id,x);return[...m.values()]}
 function mergePls(a=[],b=[]){const m=new Map();for(const p of[...(a||[]),...(b||[])]){if(!p||!p.id)continue;const o=m.get(p.id);m.set(p.id,o?{...o,tracks:mergeById(o.tracks,p.tracks)}:{...p,tracks:[...(p.tracks||[])]})}return[...m.values()]}
 function setSync(s){syncS=s;$('acctBtn').dataset.s=s;const el=$('syncTxt');if(el){el.className='sync '+s;el.innerHTML='<i></i>'+({ok:'Всё сохранено в облаке',saving:'Сохраняю…',error:'Не удалось сохранить — повторю позже'}[s])}}
+const devId=store.get('devId',null)||(()=>{const v=Math.random().toString(36).slice(2,10)+Date.now().toString(36);store.set('devId',v);return v})();
+function devInfo(){const u=navigator.userAgent;
+ const os=ENV.ios?(/iPad/.test(u)||!/iPhone/.test(u)?'iPad':'iPhone'):ENV.android?'Android':ENV.win?'Windows':/Mac OS/.test(u)?'Mac':/Linux|CrOS/.test(u)?'Linux':'Устройство';
+ const br=/Edg\//.test(u)?'Edge':/OPR\//.test(u)?'Opera':/YaBrowser/.test(u)?'Яндекс':/Firefox/.test(u)?'Firefox':/Chrome/.test(u)?'Chrome':/Safari/.test(u)?'Safari':'браузер';
+ const how=ENV.app?'приложение':ENV.desk?'программа':ENV.pwa?'ярлык':br;
+ return{name:os+' · '+how,kind:ENV.ios||ENV.android?'phone':'pc'}}
+let devSeen=false;S.devices={};
+async function devTouch(){if(!fb||!user)return;try{const i=devInfo();await fb.F.setDoc(fb.F.doc(fb.db,'users',user.uid),{devices:{[devId]:{name:i.name,kind:i.kind,last:Date.now()}}},{merge:true})}catch{}}
+async function devRemove(id){if(!fb||!user)return;try{await fb.F.updateDoc(fb.F.doc(fb.db,'users',user.uid),{['devices.'+id]:fb.F.deleteField()})}catch{toast('Не получилось — проверь интернет')}}
+function ago(ms){const d=(Date.now()-ms)/1000;if(d<120)return'сейчас';if(d<3600)return Math.round(d/60)+' мин назад';if(d<86400)return Math.round(d/3600)+' ч назад';const x=new Date(ms);return x.toLocaleDateString('ru',{day:'numeric',month:'short'})}
+const DEV_IC={phone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>',pc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>'};
+function devListHtml(){const L=Object.entries(S.devices||{}).sort((a,b)=>(b[0]===devId)-(a[0]===devId)||(b[1].last||0)-(a[1].last||0));
+ if(!L.length)return'';
+ return L.map(([id,d])=>`<div class="dev"><div class="di">${DEV_IC[d.kind]||DEV_IC.pc}</div><div class="dn"><b>${esc(d.name||'Устройство')}</b><span>${id===devId?'<span class="me">это устройство</span>':'был(а) '+ago(d.last||0)}</span></div>${id===devId?'':`<button data-devout="${esc(id)}">Выйти</button>`}</div>`).join('')}
+function devRefresh(){const el=$('devList');if(el)el.innerHTML=devListHtml()}
 function cloudSave(now){
  if(!fb||!user)return;clearTimeout(saveT);
  saveT=setTimeout(async()=>{saveT=null;setSync('saving');lastWrite=Date.now();
-  try{await fb.F.setDoc(fb.F.doc(fb.db,'users',user.uid),{likes:S.lists.likes,pls:S.pls,recent:S.lists.recent.slice(0,50),updated:lastWrite});setSync('ok')}
+  try{await fb.F.setDoc(fb.F.doc(fb.db,'users',user.uid),{likes:S.lists.likes,pls:S.pls,recent:S.lists.recent.slice(0,50),updated:lastWrite},{merge:true});setSync('ok')}
   catch{setSync('error');setTimeout(()=>cloudSave(),15000)}},now?0:1200);
 }
 window.volnaSync=()=>cloudSave();
@@ -930,11 +997,16 @@ function onUser(){
  $('acctBtn').title=user?'Аккаунт: '+loginOf(user):'Войти';
  if($('modal').classList.contains('open')&&$('modal').dataset.kind==='acct')acctDialog();
  render();
+ devSeen=false;S.devices={};
  if(!user)return;
+ devTouch();
  let first=true;
  unsub=fb.F.onSnapshot(fb.F.doc(fb.db,'users',user.uid),snap=>{
   if(snap.metadata.hasPendingWrites)return;
   const d=snap.data()||{};
+  S.devices=d.devices||{};devRefresh();
+  if(S.devices[devId])devSeen=true;
+  else if(devSeen){devSeen=false;localLogout('Тебя вывели из аккаунта с другого устройства');return}
   if(first){first=false;S.lists.likes=mergeById(d.likes,S.lists.likes);S.pls=mergePls(d.pls,S.pls);S.lists.recent=mergeById(d.recent,S.lists.recent).slice(0,50);rawSave();render();likeBtn();cloudSave(true);return}
   if(saveT||d.updated===lastWrite)return;
   S.lists.likes=d.likes||[];S.pls=d.pls||[];S.lists.recent=d.recent||[];rawSave();render();likeBtn();
@@ -942,15 +1014,16 @@ function onUser(){
 }
 const ACCT_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>';
 const AUTH_ERR={'auth/email-already-in-use':'Такой логин уже занят — выбери другой.','auth/invalid-credential':'Неверный логин или пароль.','auth/wrong-password':'Неверный логин или пароль.','auth/user-not-found':'Такого аккаунта нет — зарегистрируйся.','auth/weak-password':'Пароль должен быть не короче 6 символов.','auth/too-many-requests':'Слишком много попыток — подожди минуту.','auth/network-request-failed':'Нет связи с сервером — проверь интернет.','auth/invalid-email':'Логин: 3–24 символа, латиница, цифры, точка, _ или -.'};
+async function localLogout(msg){clearTimeout(saveT);saveT=null;if(unsub){unsub();unsub=null}try{await fb.A.signOut(fb.auth)}catch{}S.lists.likes=[];S.pls=[];S.lists.recent=[];rawSave();if(S.view.startsWith('pl:'))S.view='home';render();likeBtn();toast(msg)}
 function acctDialog(){
  const m=$('modal');m.dataset.kind='acct';
  const close=()=>{m.classList.remove('open');m.dataset.kind='';document.removeEventListener('keydown',kd,true)};
  const kd=e=>{if(e.key==='Escape'){e.stopPropagation();close()}};
  document.addEventListener('keydown',kd,true);
  if(!FB_CFG||!fb){
-  m.innerHTML=`<div class="dlg glass"><button class="x" data-x aria-label="Закрыть">×</button><h3>Аккаунты</h3><p>${FB_CFG?'Подключаюсь к серверу… Попробуй через пару секунд.':'Вход скоро заработает. Пока лайки и плейлисты сохраняются в этом браузере.'}</p></div>`;
+  m.innerHTML=`<div class="dlg glass"><button class="x" data-x aria-label="Закрыть">×</button><h3>Аккаунты</h3><p>${FB_CFG?'Подключаюсь к серверу… Попробуй через пару секунд.':'Вход скоро заработает. Пока лайки и плейлисты сохраняются в этом браузере.'}</p><p style="text-align:center"><button type="button" class="linkbtn" data-apps>Установить приложение</button></p></div>`;
  }else if(user){
-  m.innerHTML=`<div class="dlg glass" style="text-align:center"><button class="x" data-x aria-label="Закрыть">×</button><div class="ava big">${esc(loginOf(user)[0]||'?')}</div><h3>${esc(loginOf(user))}</h3><p>Лайки, плейлисты и история одинаковые на всех устройствах, где ты вошёл.</p><p class="sync ${syncS}" id="syncTxt"></p><div class="dlg-b" style="justify-content:center"><button class="pill ghost" data-logout>Выйти из аккаунта</button></div></div>`;
+  m.innerHTML=`<div class="dlg glass" style="text-align:center"><button class="x" data-x aria-label="Закрыть">×</button><div class="ava big">${esc(loginOf(user)[0]||'?')}</div><h3>${esc(loginOf(user))}</h3><p>Лайки, плейлисты и история одинаковые на всех устройствах, где ты вошёл.</p><p class="sync ${syncS}" id="syncTxt"></p><h4 style="text-align:left;margin:16px 0 0;font-size:14px">Устройства</h4><div class="devs" id="devList">${devListHtml()}</div><div class="dlg-b" style="justify-content:center;flex-wrap:wrap"><button class="pill ghost" data-apps>Установить приложение</button><button class="pill ghost" data-logout>Выйти из аккаунта</button></div></div>`;
   setSync(syncS);
  }else{
   m.innerHTML=`<form class="dlg glass" id="authF" novalidate><button type="button" class="x" data-x aria-label="Закрыть">×</button>
@@ -961,7 +1034,8 @@ function acctDialog(){
    <input class="field" id="aPass2" type="password" placeholder="Повтори пароль" autocomplete="new-password" hidden>
    <p class="err" id="aErr"></p>
    <button class="pill acc wide" id="aGo">Войти</button>
-   <p style="font-size:12px;text-align:center">Лайки и плейлисты с этого устройства перенесутся в аккаунт.</p></form>`;
+   <p style="font-size:12px;text-align:center">Лайки и плейлисты с этого устройства перенесутся в аккаунт.<br>Вход запоминается — повторно вводить пароль не нужно.</p>
+   <p style="text-align:center;margin:4px 0 0"><button type="button" class="linkbtn" data-apps>Установить приложение</button></p></form>`;
   let mode='in';const f=$('authF');
   $('authSeg').onclick=e=>{const b=e.target.closest('[data-mode]');if(!b)return;mode=b.dataset.mode;$$('#authSeg button').forEach(x=>x.classList.toggle('on',x===b));
    $('aPass2').hidden=mode==='in';$('aGo').textContent=mode==='in'?'Войти':'Создать аккаунт';$('authH').textContent=mode==='in'?'С возвращением':'Новый аккаунт';$('aPass').autocomplete=mode==='in'?'current-password':'new-password';$('aErr').textContent=''};
@@ -977,7 +1051,9 @@ function acctDialog(){
  m.classList.add('open');
  m.onclick=async e=>{
   if(e.target===m||e.target.closest('[data-x]')){close();return}
-  if(e.target.closest('[data-logout]')){close();if(await dialog({title:'Выйти из аккаунта?',text:'Лайки и плейлисты останутся в облаке. С этого устройства они уберутся до следующего входа.',ok:'Выйти',danger:true})){clearTimeout(saveT);saveT=null;await fb.A.signOut(fb.auth);S.lists.likes=[];S.pls=[];S.lists.recent=[];rawSave();if(S.view.startsWith('pl:'))S.view='home';render();likeBtn();toast('Ты вышел из аккаунта')}}
+  if(e.target.closest('[data-logout]')){close();if(await dialog({title:'Выйти из аккаунта?',text:'Лайки и плейлисты останутся в облаке. С этого устройства они уберутся до следующего входа.',ok:'Выйти',danger:true})){devSeen=false;await devRemove(devId);localLogout('Ты вышел из аккаунта')}return}
+  const dv=e.target.closest('[data-devout]');if(dv){close();const d=S.devices[dv.dataset.devout];if(await dialog({title:'Выйти на этом устройстве?',text:`«${d?.name||'Устройство'}» выйдет из аккаунта, как только подключится к интернету.`,ok:'Выйти',danger:true})){await devRemove(dv.dataset.devout);toast('Готово');acctDialog()}else acctDialog();return}
+  if(e.target.closest('[data-apps]')){close();appsDialog();return}
  };
 }
 $('acctBtn').onclick=()=>acctDialog();
@@ -998,14 +1074,126 @@ $('sLike').onclick=$('bLike').onclick=e=>{e.stopPropagation();if(S.cur&&S.cur.ki
  sh.addEventListener('touchend',()=>{if(y0==null)return;sh.style.transition='';sh.style.transform='';if(dy>110)closeLayer('sheet');y0=null});}
 new MutationObserver(()=>{$('pvBox2').innerHTML=$('pvBox').innerHTML}).observe($('pvBox'),{childList:true,subtree:true,characterData:true});
 $('pvBox2').innerHTML=$('pvBox').innerHTML;
-const ytb=$('ytbox');let ytKey='';
+const ytb=$('ytbox'),clipb=$('clipbox');const boxKey=new WeakMap();
+function putBox(box,r,z,rad){const k=[r.left,r.top,r.width,r.height,z].map(v=>Math.round(v)).join()+rad;if(boxKey.get(box)===k)return;boxKey.set(box,k);Object.assign(box.style,{display:'block',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',zIndex:z,borderRadius:rad})}
+function hideBox(box){if(box.style.display!=='none'){box.style.display='none';boxKey.delete(box)}}
+function coverRect(r){let w=r.width,h=w*9/16;if(h<r.height){h=r.height;w=h*16/9}return{left:r.left+(r.width-w)/2,top:r.top+(r.height-h)/2,width:w,height:h}}
 function placeYT(){
- if(!isYT()){if(ytb.style.display!=='none')ytb.style.display='none';ytKey='';return}
- const order=[layers.lyr.classList.contains('open')&&$('lArt'),layers.sheet.classList.contains('open')&&$('slotSheet'),$('slotSide'),$('mArt')];
+ const L=layers.lyr,lyrOpen=L.classList.contains('open'),clipOn=lyrOpen&&S.lyrMode==='clip'&&isYT();
+ let bgBox=null;
+ if(clipOn){if(clip.vid&&clip.ready)bgBox=clipb;else if(clip.vid===null&&clip.for===S.cur?.id)bgBox=ytb}
+ L.classList.toggle('clipv',!!bgBox);
+ const lr=bgBox&&coverRect(L.getBoundingClientRect()),lz=(+getComputedStyle(L).zIndex||20)-1;
+ if(bgBox===clipb)putBox(clipb,lr,lz,'0');else hideBox(clipb);
+ if(!isYT()){hideBox(ytb);ytb.classList.remove('clipbg');return}
+ if(bgBox===ytb){ytb.classList.add('clipbg');putBox(ytb,lr,lz,'0');return}
+ ytb.classList.remove('clipbg');
+ const order=[lyrOpen&&$('lArt'),layers.sheet.classList.contains('open')&&$('slotSheet'),$('slotSide'),$('mArt')];
  for(const el of order){if(!el)continue;const r=el.getBoundingClientRect();if(r.width<2||r.height<2)continue;
-  const z=el.id==='lArt'?50:el.id==='slotSheet'?30:5,k=[r.left,r.top,r.width,r.height,z].map(v=>Math.round(v)).join();
-  if(k!==ytKey){ytKey=k;Object.assign(ytb.style,{display:'block',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',zIndex:z,borderRadius:getComputedStyle(el).borderRadius})}return}
- ytb.style.display='none';ytKey='';
+  const z=el.id==='lArt'?50:el.id==='slotSheet'?30:5;putBox(ytb,r,z,getComputedStyle(el).borderRadius);return}
+ hideBox(ytb);
+}
+
+/* ================= KARAOKE: beat pulse ================= */
+const beat={bpm:0,off:0,lastW:null,kick:null,env:0,pk:.3},bpmCache=store.get('bpm',{});
+function jsonp(url){return new Promise((res,rej)=>{const cb='dz'+Math.random().toString(36).slice(2),sc=document.createElement('script');
+ const done=()=>{clearTimeout(tm);delete window[cb];sc.remove()},tm=setTimeout(()=>{done();rej(new Error('timeout'))},7000);
+ window[cb]=d=>{done();res(d)};sc.onerror=()=>{done();rej(new Error('net'))};sc.src=url+(url.includes('?')?'&':'?')+'output=jsonp&callback='+cb;document.head.appendChild(sc)})}
+async function loadBpm(t){
+ beat.bpm=0;beat.off=0;beat.lastW=null;beat.kick=null;
+ if(t.kind==='local')return;
+ if(t.id in bpmCache){beat.bpm=bpmCache[t.id];return}
+ try{
+  const q=(clean(t.artist)+' '+clean(t.title)).trim();
+  const r=await jsonp('https://api.deezer.com/search?limit=5&q='+encodeURIComponent(q));
+  const hit=(r.data||[])[0];let b=0;
+  if(hit){const tr=await jsonp('https://api.deezer.com/track/'+hit.id);b=+tr.bpm||0}
+  if(b>0){while(b<70)b*=2;while(b>180)b/=2}
+  bpmCache[t.id]=b;store.set('bpm',bpmCache);if(S.cur===t)beat.bpm=b;
+ }catch{}
+}
+function wordStart(t){const L=S.lrc?.[S.lrcIdx];if(!L||!L.words)return null;let w=null;for(const x of L.words){if(x.t<=t)w=x.t;else break}return w}
+let beatOn=false;
+function beatTick(){
+ const el=layers.lyr;if(!el.classList.contains('open')){if(beatOn){beatOn=false;beat.env=0;el.style.setProperty('--beat',0)}return}
+ beatOn=true;let v=0;
+ if(S.cur&&!paused()){
+  if(S.cur.kind==='local'&&an){an.getByteFrequencyData(data);let x=0;for(let i=1;i<5;i++)x+=data[i];x/=4*255;beat.pk=Math.max(beat.pk*.997,x,.15);const y=Math.max(0,(x-beat.pk*.62)/(beat.pk*.38));v=y*y}
+  else{
+   const t=ctime(),w=wordStart(t);
+   if(w!=null&&w!==beat.lastW){beat.lastW=w;beat.kick=t;if(beat.bpm){const P=60/beat.bpm;let e=((w-beat.off)%P+P)%P;if(e>P/2)e-=P;beat.off+=e*.3}}
+   if(beat.bpm){const P=60/beat.bpm,ph=(((t-beat.off)%P)+P)%P/P;v=Math.exp(-ph*5.5)}
+   else if(beat.kick!=null)v=Math.exp(-Math.max(0,t-beat.kick)*6)*.8;
+  }
+ }
+ beat.env=Math.max(v,beat.env*.86);
+ el.style.setProperty('--beat',beat.env.toFixed(3));
+}
+
+/* ================= KARAOKE: clip mode ================= */
+S.lyrMode=store.get('lyrMode','cover');
+const clip={p:null,ready:false,vid:undefined,for:null,last:0};
+function curVid(){const t=S.cur;return!t?null:t.kind==='yt'?t.vid:S.ytmap[t.id]}
+function clipReset(){clip.for=null;clip.vid=undefined;if(clip.ready)try{clip.p.pauseVideo()}catch{}}
+async function clipEnsure(){
+ const t=S.cur;if(!t||!isYT()||clip.for===t.id)return;
+ clip.for=t.id;clip.vid=undefined;
+ let v=t.clip?null:t.clipVid;
+ if(v===undefined){try{const r=await ytFind(clean(t.artist+' '+t.title),'clips');v=r[0]?.vid||null}catch{v=null}t.clipVid=v}
+ if(S.cur!==t||clip.for!==t.id)return;
+ if(!v||v===curVid()){clip.vid=null;return}
+ clip.vid=v;
+ if(!ytReady){clip.vid=null;return}
+ if(!clip.p){clip.ready=false;clip.p=new YT.Player('clipYT',{width:'100%',height:'100%',videoId:v,playerVars:{autoplay:1,mute:1,controls:0,disablekb:1,playsinline:1,rel:0,fs:0,iv_load_policy:3,origin:location.origin},
+   events:{onReady:e=>{e.target.mute();clip.ready=true;e.target.seekTo(ctime(),true)},onError:()=>{clip.vid=null}}})}
+ else{clip.p.loadVideoById({videoId:v,startSeconds:ctime()});clip.p.mute()}
+}
+function clipSync(now){
+ const want=layers.lyr.classList.contains('open')&&S.lyrMode==='clip'&&isYT();
+ if(want&&clip.for!==S.cur?.id)clipEnsure();
+ if(!clip.ready||now-clip.last<600)return;clip.last=now;
+ try{const st=clip.p.getPlayerState();
+  if(!want||!clip.vid||paused()){if(st===1)clip.p.pauseVideo();return}
+  const t=ctime(),d=clip.p.getDuration()||0;
+  if(d&&t>d-1){if(st===1)clip.p.pauseVideo();return}
+  if(st!==1&&st!==3)clip.p.playVideo();
+  if(Math.abs(clip.p.getCurrentTime()-t)>1.2)clip.p.seekTo(t,true);
+ }catch{}
+}
+function lyrModeUI(){$$('#lMode button').forEach(b=>b.classList.toggle('on',b.dataset.m===S.lyrMode))}
+$('lMode').onclick=e=>{const b=e.target.closest('[data-m]');if(!b)return;
+ if(b.dataset.m==='clip'&&S.cur&&!isYT()){toast('Клипы есть только у треков с YouTube');return}
+ S.lyrMode=b.dataset.m;store.set('lyrMode',S.lyrMode);lyrModeUI();
+ if(S.lyrMode==='clip'){toast('Ищу клип…');clip.for=null}};
+lyrModeUI();
+
+/* ================= MEDIA SESSION (экран блокировки, кнопки наушников) ================= */
+if('mediaSession'in navigator){const ms=navigator.mediaSession,h=(a,f)=>{try{ms.setActionHandler(a,f)}catch{}};
+ h('play',()=>paused()&&toggle());h('pause',()=>!paused()&&toggle());h('nexttrack',()=>step(1));h('previoustrack',()=>ctime()>3?seek(0):step(-1));
+ h('seekto',d=>seek(d.seekTime));h('seekforward',()=>seek(ctime()+10));h('seekbackward',()=>seek(ctime()-10))}
+
+/* ================= PWA ================= */
+let installEv=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEv=e});
+if('serviceWorker'in navigator&&location.protocol==='https:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+const ENV=(()=>{const u=navigator.userAgent;return{app:/VolnaApp/.test(u),desk:/VolnaDesktop/.test(u),pwa:matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,ios:/iPhone|iPad|iPod/.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1),android:/Android/.test(u),win:/Windows/.test(u)}})();
+const REL='https://github.com/asarabombom-ctrl/volna/releases/download/';
+function appsDialog(){
+ const m=$('modal');m.dataset.kind='apps';
+ const close=()=>{m.classList.remove('open');m.dataset.kind=''};
+ const where=ENV.app?'Ты уже в приложении для Android.':ENV.desk?'Ты уже в программе для Windows.':ENV.pwa?'Волна уже установлена на этом устройстве.':'';
+ const ios=`<div class="app"><div class="di">🍏</div><div class="dn"><b>iPhone и iPad</b><span>Через Safari, без App Store</span><ol class="howto"><li>Открой этот сайт в <b>Safari</b></li><li>Нажми «Поделиться» <b>⬆︎</b></li><li>Выбери «На экран „Домой“»</li></ol></div></div>`;
+ m.innerHTML=`<div class="dlg glass"><button class="x" data-x aria-label="Закрыть">×</button><h3>Установить Волну</h3><p>${where||'Выбери своё устройство. Лайки и плейлисты подтянутся после входа в аккаунт.'}</p>
+  <div class="apps">
+   ${installEv?`<button class="app" data-inst><div class="di">⬇︎</div><div class="dn"><b>Установить на это устройство</b><span>Ярлык как у приложения, без магазина</span></div></button>`:''}
+   <a class="app" href="${REL}android-latest/Volna.apk"><div class="di">🤖</div><div class="dn"><b>Android</b><span>Файл APK · открой после скачивания</span></div></a>
+   <a class="app" href="${REL}windows-latest/Volna-Setup.exe"><div class="di">🪟</div><div class="dn"><b>Windows</b><span>Установщик .exe</span></div></a>
+   <a class="app" href="${REL}windows-latest/Volna-Portable.exe"><div class="di">💼</div><div class="dn"><b>Windows без установки</b><span>Запускается сразу, можно с флешки</span></div></a>
+   ${ios}
+  </div><p style="font-size:12px;margin-top:12px">Windows может предупредить «неизвестный издатель» — нажми «Подробнее» → «Выполнить в любом случае».</p></div>`;
+ m.classList.add('open');
+ m.onclick=async e=>{if(e.target===m||e.target.closest('[data-x]')){close();return}
+  if(e.target.closest('[data-inst]')&&installEv){installEv.prompt();const r=await installEv.userChoice;installEv=null;close();if(r.outcome==='accepted')toast('Волна установлена')}};
 }
 
 /* ================= START ================= */
