@@ -343,7 +343,7 @@ button:active{transform:scale(.96)}
 .lmode button.on{background:#fff;color:#111}
 #lyrFull.clipv{background:transparent}
 #lyrFull.clipv .lbg,#lyrFull.clipv .lstage{display:none}
-#lyrFull.clipv::before{background:linear-gradient(180deg,rgba(0,0,0,.6),rgba(0,0,0,.25) 35%,rgba(0,0,0,.35) 65%,rgba(0,0,0,.75))}
+#lyrFull.clipv::before{background:linear-gradient(180deg,rgba(0,0,0,.65),rgba(0,0,0,.4) 30%,rgba(0,0,0,.5) 65%,rgba(0,0,0,.8))}
 #lyrFull.clipv .ly{text-shadow:0 2px 18px rgba(0,0,0,.45)}
 .ytbox.clipbg{pointer-events:none}
 #clipbox{pointer-events:none}
@@ -1077,7 +1077,7 @@ $('sLike').onclick=$('bLike').onclick=e=>{e.stopPropagation();if(S.cur&&S.cur.ki
 new MutationObserver(()=>{$('pvBox2').innerHTML=$('pvBox').innerHTML}).observe($('pvBox'),{childList:true,subtree:true,characterData:true});
 $('pvBox2').innerHTML=$('pvBox').innerHTML;
 const ytb=$('ytbox'),clipb=$('clipbox');const boxKey=new WeakMap();
-function putBox(box,r,z,rad){const k=[r.left,r.top,r.width,r.height,z].map(v=>Math.round(v)).join()+rad;if(boxKey.get(box)===k)return;boxKey.set(box,k);Object.assign(box.style,{display:'block',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',zIndex:z,borderRadius:rad})}
+function putBox(box,r,z,rad,cl=''){const k=[r.left,r.top,r.width,r.height,z].map(v=>Math.round(v)).join()+rad+cl;if(boxKey.get(box)===k)return;boxKey.set(box,k);Object.assign(box.style,{display:'block',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',zIndex:z,borderRadius:rad,clipPath:cl})}
 function hideBox(box){if(box.style.display!=='none'){box.style.display='none';boxKey.delete(box)}}
 function coverRect(r){let w=r.width,h=w*9/16;if(h<r.height){h=r.height;w=h*16/9}return{left:r.left+(r.width-w)/2,top:r.top+(r.height-h)/2,width:w,height:h}}
 function placeYT(){
@@ -1085,11 +1085,12 @@ function placeYT(){
  let bgBox=null;
  if(clipOn){if(clip.vid&&clip.ready)bgBox=clipb;else if(clip.vid===null&&clip.for===S.cur?.id)bgBox=ytb}
  L.classList.toggle('clipv',!!bgBox);
- const lr=bgBox&&coverRect(L.getBoundingClientRect()),lz=(+getComputedStyle(L).zIndex||20)-1;
- if(bgBox===clipb)putBox(clipb,lr,lz,'0');else hideBox(clipb);
+ const R=bgBox&&L.getBoundingClientRect(),lr=bgBox&&coverRect(R),lz=(+getComputedStyle(L).zIndex||20)-1;
+ const cl=bgBox?`inset(${Math.round(R.top-lr.top)}px ${Math.round(lr.left+lr.width-R.right)}px ${Math.round(lr.top+lr.height-R.bottom)}px ${Math.round(R.left-lr.left)}px)`:'';
+ if(bgBox===clipb)putBox(clipb,lr,lz,'0',cl);else hideBox(clipb);
  if(!isYT()){hideBox(ytb);ytb.classList.remove('clipbg');return}
- if(bgBox===ytb){ytb.classList.add('clipbg');putBox(ytb,lr,lz,'0');return}
- ytb.classList.remove('clipbg');
+ if(bgBox===ytb){ytb.classList.add('clipbg');putBox(ytb,lr,lz,'0',cl);return}
+ ytb.classList.remove('clipbg');ytb.style.clipPath='';
  const order=[lyrOpen&&$('lArt'),layers.sheet.classList.contains('open')&&$('slotSheet'),$('slotSide'),$('mArt')];
  for(const el of order){if(!el)continue;const r=el.getBoundingClientRect();if(r.width<2||r.height<2)continue;
   const z=el.id==='lArt'?50:el.id==='slotSheet'?30:5;putBox(ytb,r,z,getComputedStyle(el).borderRadius);return}
