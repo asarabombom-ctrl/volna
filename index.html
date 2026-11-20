@@ -360,10 +360,10 @@ button:active{transform:scale(.96)}
 .dev button{font-size:12px;font-weight:700;color:var(--mut);padding:6px 10px;border-radius:999px;border:1px solid var(--line)}
 .dev button:hover{color:#fff;border-color:rgba(255,255,255,.3)}
 .apps{display:grid;gap:10px;margin-top:14px;text-align:left}
-.app{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--line);color:inherit;text-decoration:none}
-.app:hover{background:rgba(255,255,255,.09)}
-.app .di{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 35%,transparent);flex:none;font-size:20px}
-.app .dn{flex:1}.app .dn b{display:block}.app .dn span{font-size:12px;color:var(--mut)}
+.appi{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--line);color:inherit;text-decoration:none}
+.appi:hover{background:rgba(255,255,255,.09)}
+.appi .di{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 35%,transparent);flex:none;font-size:20px}
+.appi .dn{flex:1}.appi .dn b{display:block}.appi .dn span{font-size:12px;color:var(--mut)}
 .howto{font-size:13px;color:var(--mut);margin:6px 0 0;padding-left:18px;line-height:1.6}
 .linkbtn{background:none;border:0;color:var(--acc2,var(--acc));font-weight:700;font-size:13px;cursor:pointer;padding:4px}
 </style>
@@ -1182,13 +1182,13 @@ function appsDialog(){
  const m=$('modal');m.dataset.kind='apps';
  const close=()=>{m.classList.remove('open');m.dataset.kind=''};
  const where=ENV.app?'Ты уже в приложении для Android.':ENV.desk?'Ты уже в программе для Windows.':ENV.pwa?'Волна уже установлена на этом устройстве.':'';
- const ios=`<div class="app"><div class="di">🍏</div><div class="dn"><b>iPhone и iPad</b><span>Через Safari, без App Store</span><ol class="howto"><li>Открой этот сайт в <b>Safari</b></li><li>Нажми «Поделиться» <b>⬆︎</b></li><li>Выбери «На экран „Домой“»</li></ol></div></div>`;
+ const ios=`<div class="appi"><div class="di">🍏</div><div class="dn"><b>iPhone и iPad</b><span>Через Safari, без App Store</span><ol class="howto"><li>Открой этот сайт в <b>Safari</b></li><li>Нажми «Поделиться» <b>⬆︎</b></li><li>Выбери «На экран „Домой“»</li></ol></div></div>`;
  m.innerHTML=`<div class="dlg glass"><button class="x" data-x aria-label="Закрыть">×</button><h3>Установить Волну</h3><p>${where||'Выбери своё устройство. Лайки и плейлисты подтянутся после входа в аккаунт.'}</p>
   <div class="apps">
-   ${installEv?`<button class="app" data-inst><div class="di">⬇︎</div><div class="dn"><b>Установить на это устройство</b><span>Ярлык как у приложения, без магазина</span></div></button>`:''}
-   <a class="app" href="${REL}android-latest/Volna.apk"><div class="di">🤖</div><div class="dn"><b>Android</b><span>Файл APK · открой после скачивания</span></div></a>
-   <a class="app" href="${REL}windows-latest/Volna-Setup.exe"><div class="di">🪟</div><div class="dn"><b>Windows</b><span>Установщик .exe</span></div></a>
-   <a class="app" href="${REL}windows-latest/Volna-Portable.exe"><div class="di">💼</div><div class="dn"><b>Windows без установки</b><span>Запускается сразу, можно с флешки</span></div></a>
+   ${installEv?`<button class="appi" data-inst><div class="di">⬇︎</div><div class="dn"><b>Установить на это устройство</b><span>Ярлык как у приложения, без магазина</span></div></button>`:''}
+   <a class="appi" href="${REL}android-latest/Volna.apk"><div class="di">🤖</div><div class="dn"><b>Android</b><span>Файл APK · открой после скачивания</span></div></a>
+   <a class="appi" href="${REL}windows-latest/Volna-Setup.exe"><div class="di">🪟</div><div class="dn"><b>Windows</b><span>Установщик .exe</span></div></a>
+   <a class="appi" href="${REL}windows-latest/Volna-Portable.exe"><div class="di">💼</div><div class="dn"><b>Windows без установки</b><span>Запускается сразу, можно с флешки</span></div></a>
    ${ios}
   </div><p style="font-size:12px;margin-top:12px">Windows может предупредить «неизвестный издатель» — нажми «Подробнее» → «Выполнить в любом случае».</p></div>`;
  m.classList.add('open');
