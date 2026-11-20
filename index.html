@@ -2,7 +2,10 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0812">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Волна</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -27,7 +30,7 @@ button{cursor:pointer;background:none;border:0;padding:0}
 .tw{animation:tw 3s ease-in-out infinite alternate}
 @keyframes tw{to{opacity:.15}}
 @media(prefers-reduced-motion:reduce){.pt,.tw{animation:none}}
-.app{position:relative;z-index:1;display:grid;grid-template-columns:220px minmax(0,1fr) 300px;grid-template-rows:minmax(0,1fr) var(--barH);height:100vh;gap:12px;padding:12px}
+.app{position:relative;z-index:1;display:grid;grid-template-columns:220px minmax(0,1fr) 300px;grid-template-rows:minmax(0,1fr) var(--barH);height:100vh;height:100dvh;gap:12px;padding:12px}
 .glass{background:var(--glass);backdrop-filter:blur(16px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.2);border:1px solid var(--line);border-radius:18px}
 aside{display:flex;flex-direction:column;gap:2px;padding:18px 12px}
 .logo{display:flex;align-items:center;gap:8px;font:800 24px/1 Manrope,system-ui,sans-serif;padding:2px 10px 22px;letter-spacing:-.02em}
@@ -99,9 +102,32 @@ h1 svg{width:30px;height:30px;color:var(--acc);flex:none;display:block}
 .np{padding:16px;display:flex;flex-direction:column;gap:12px}
 .bigcov{width:100%;aspect-ratio:1;border-radius:14px;background:#1a1a1f center/cover;box-shadow:0 18px 40px rgba(0,0,0,.5);overflow:hidden;max-height:230px}
 .bigcov svg{width:100%;height:100%;display:block}
-.ytbox{width:100%;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#000;display:none}
+.ytbox{position:fixed;display:none;overflow:hidden;background:#000;left:0;top:0}
 .ytbox iframe{width:100%;height:100%;border:0;display:block}
-.side.yt .ytbox{display:block}.side.yt .bigcov{display:none}
+.ytslot{width:100%;aspect-ratio:16/9;border-radius:14px;background:#000;display:none}
+body.yt .ytslot{display:block}body.yt .bigcov,body.yt .sh-art{display:none}
+.m-only,.mlogo,#barLine{display:none}
+#sheet{position:fixed;inset:0;z-index:25;transform:translateY(100%);transition:transform .38s cubic-bezier(.2,.8,.2,1),visibility .38s;background:var(--bg);visibility:hidden;overflow:hidden}
+#sheet.open{transform:none;visibility:visible}
+.sh-bg{position:absolute;inset:-60px;background:center/cover;filter:blur(40px) brightness(.42) saturate(1.3)}
+.sh-in{position:relative;height:100%;overflow-y:auto;padding:calc(8px + env(safe-area-inset-top)) 22px calc(28px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px;max-width:540px;margin:0 auto}
+.sh-top{display:flex;align-items:center;justify-content:space-between}
+.sh-k{text-align:center;font-size:12px;color:var(--mut);font-weight:700;min-width:0}
+.sh-k b{display:block;color:var(--ink);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sh-art{width:min(100%,44dvh);aspect-ratio:1;border-radius:16px;background:#222 center/cover;box-shadow:0 24px 60px rgba(0,0,0,.55);align-self:center;flex:none}
+.sh-meta{display:flex;align-items:center;gap:10px}.sh-meta>div{flex:1;min-width:0}
+.sh-meta .ti{font-size:22px;font-weight:800;white-space:normal;line-height:1.2}
+.sh-meta .ar{font-size:15px;white-space:normal}
+.ctr.big .play{width:66px;height:66px}.ctr.big .play svg{width:28px;height:28px}
+.ctr.big .ib svg{width:24px;height:24px}
+.sh-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+#lyrCard2{flex:none;min-height:190px}
+.lf{display:none;position:relative;padding:6px 20px calc(14px + env(safe-area-inset-bottom))}
+.lf-c{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px;font-size:12px;color:rgba(255,255,255,.75);font-variant-numeric:tabular-nums}
+.lf-c>div{display:flex;align-items:center;gap:6px}
+.lf .ib{color:#fff}
+.lf input[type=range]{background:linear-gradient(to right,#fff var(--p,0%),rgba(255,255,255,.25) var(--p,0%))}
+.lf input[type=range]::-webkit-slider-thumb{background:#fff;box-shadow:none}
 #viz{width:100%;height:36px;display:block}
 .npt{text-align:center}
 .npt .ti{white-space:normal;font-size:16px;line-height:1.3}
@@ -175,23 +201,47 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
  .side{display:none}
  .bctl{display:flex}
  .bar{grid-template-columns:minmax(0,1fr) auto minmax(0,1.4fr) auto;gap:14px}
+ .mini{cursor:pointer}
 }
 @media(max-width:760px){
- :root{--barH:132px}
- .app{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) var(--barH) 62px;padding:8px;gap:8px}
+ :root{--barH:64px}
+ .app{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) var(--barH) auto;padding:calc(8px + env(safe-area-inset-top)) 8px 0;gap:8px}
  aside{display:none}
+ .m-only{display:block}
+ .top{flex-wrap:wrap;gap:8px;margin-bottom:10px}
+ .mlogo{display:flex;flex:1;padding:0 4px;font-size:22px}
+ .top .round{width:44px;height:44px}
+ .top .pill{min-height:44px!important;width:44px;padding:0;border-radius:50%}
  .top .pill span{display:none}
- .tabs{display:flex;justify-content:space-around;padding:4px}
- .tabs .nav{flex-direction:column;gap:2px;font-size:11px;padding:6px 4px;justify-content:center;min-height:52px}
- .tabs .nav svg{width:18px;height:18px}
- .bar{grid-template-columns:minmax(0,1fr) auto;row-gap:8px;padding:12px}
- .bprog{grid-column:1/-1;order:3}.bvol{display:none}
- .hero{padding:12px;gap:14px}.hero .cov{width:96px;height:96px}
+ .search{order:5;flex-basis:100%;min-height:44px}
+ .hero{padding:12px;gap:14px;margin-bottom:10px;border-radius:16px}
+ .hero .cov{width:84px;height:84px;border-radius:10px}
+ h1{font-size:24px;gap:8px}h1 svg{width:20px;height:20px}
+ .kicker{font-size:12px}.sub{margin-bottom:10px;font-size:13px}
+ .acts .pill{min-height:38px}
+ .banner{font-size:13px;padding:10px 12px;margin-bottom:10px}
+ .tracks{padding:4px;border-radius:16px}
  .cols{display:none}
- .row{grid-template-columns:minmax(0,1fr) 36px 36px}
+ .row{grid-template-columns:minmax(0,1fr) 40px 40px;gap:4px;padding:0 6px;min-height:60px}
  .row .num,.row .ar2,.row .al,.row .dur{display:none}
- #lyrFull{bottom:calc(var(--barH) + 78px)}
+ .row .thumb{width:44px;height:44px}
+ .mini-b{width:40px;height:40px}
+ .bar{grid-template-columns:minmax(0,1fr) auto auto;gap:2px;padding:0 6px 0 8px;position:relative;overflow:hidden;border-radius:14px}
+ .bprog,.bvol,.bctl [data-prev],.bctl [data-next]{display:none}
+ .bar .mini .thumb{width:46px;height:46px}
+ #bLike{display:grid}
+ #barLine{position:absolute;left:0;bottom:0;height:2px;background:var(--acc);width:0;display:block}
+ .tabs{display:flex;justify-content:space-around;padding:2px 4px calc(2px + env(safe-area-inset-bottom));border-radius:16px 16px 0 0;border-bottom:0}
+ .tabs .nav{flex-direction:column;gap:2px;font-size:11px;padding:6px 2px;justify-content:center;min-height:54px;text-align:center}
+ .tabs .nav svg{width:20px;height:20px}
+ .tabs .nav.on{background:none;color:var(--acc2)}
+ #lyrFull{bottom:0;z-index:40}
+ .lf{display:block}
+ .lh{padding:calc(12px + env(safe-area-inset-top)) 16px 8px;gap:10px}
  .lh #lyrFix{display:none}
+ .ly{font-size:27px;margin-bottom:16px}
+ #lyrBody{padding:16vh 20px 30vh}
+ .pop,.menu{left:8px!important;right:8px;top:auto!important;bottom:calc(8px + env(safe-area-inset-bottom));width:auto;max-height:78dvh}
 }
 </style>
 </head>
@@ -214,6 +264,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
 
   <main>
     <div class="top">
+      <div class="logo mlogo">Волна <svg viewBox="0 0 26 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M1 10l4-6 4 10 4-12 4 14 4-9 4 4"/></svg></div>
       <form class="search" id="sform"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="q" placeholder="Поиск музыки, исполнителей, альбомов…" autocomplete="off"></form>
       <label class="pill ghost" style="min-height:46px;cursor:pointer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h6l2 2h10v10H3z"/></svg><span>Открыть файлы</span><input id="files" type="file" multiple accept="audio/*,video/mp4,.m4a,.flac,.ogg,.opus" hidden></label>
       <button class="round" data-theme-open title="Тема"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="10" r="1.5" fill="currentColor"/><circle cx="12" cy="7.5" r="1.5" fill="currentColor"/><circle cx="15.5" cy="10" r="1.5" fill="currentColor"/></svg></button>
@@ -244,16 +295,16 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
   <section class="side" id="side">
     <div class="np glass">
       <div class="bigcov" id="bigArt"></div>
-      <div class="ytbox"><div id="yt"></div></div>
+      <div class="ytslot" id="slotSide"></div>
       <canvas id="viz"></canvas>
       <div class="npt"><div class="ti" id="nTi">Ничего не играет</div><div class="ar" id="nAr">Выбери трек</div></div>
       <div><input type="range" id="pos2" min="0" max="1000" value="0" aria-label="Позиция"><div class="prog"><span id="c2">0:00</span><span id="t2" style="text-align:right">0:00</span></div></div>
       <div class="ctr">
-        <button class="ib" id="shuf" title="Перемешать"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
+        <button class="ib" data-shuf title="Перемешать"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
         <button class="ib" data-prev title="Назад"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
         <button class="play" data-pp title="Играть/пауза"><svg viewBox="0 0 24 24" fill="currentColor" class="ppI"><path d="M7 4v16l13-8z"/></svg></button>
         <button class="ib" data-next title="Вперёд"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
-        <button class="ib" id="rep" title="Повтор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 01-3 3H3"/></svg></button>
+        <button class="ib" data-rep title="Повтор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 01-3 3H3"/></svg></button>
       </div>
       <div class="npf"><button class="pill ghost" id="npLike"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.5-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.5-9 9-9 9z"/></svg><span>В избранное</span></button><button class="pill ghost" id="npAdd">+ Плейлист</button></div>
     </div>
@@ -264,7 +315,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
   </section>
 
   <div class="bar glass">
+    <div id="barLine"></div>
     <div class="mini"><div class="thumb" id="mArt"></div><div style="min-width:0"><div class="ti" id="mTi">—</div><div class="ar" id="mAr"></div></div></div>
+    <button class="ib m-only" id="bLike" title="В избранное"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.5-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.5-9 9-9 9z"/></svg></button>
     <div class="bctl">
       <button class="ib" data-prev title="Назад"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
       <button class="play" data-pp><svg viewBox="0 0 24 24" fill="currentColor" class="ppI"><path d="M7 4v16l13-8z"/></svg></button>
@@ -284,7 +337,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
     <button class="nav" data-v="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Поиск</button>
     <button class="nav" data-v="likes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.5-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.5-9 9-9 9z"/></svg>Избранное</button>
     <button class="nav" data-v="playlists"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Плейлисты</button>
-    <button class="nav" data-lyr><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H8l-4 4z"/></svg>Текст</button>
+    <button class="nav" data-v="recent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Недавние</button>
   </nav>
 </div>
 
@@ -296,7 +349,27 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
     <button class="round" id="lyrClose" title="Закрыть (Esc)" style="background:rgba(0,0,0,.25)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>
   <div id="lyrBody"><p class="lmsg">Включи трек — и текст побежит в такт.</p></div>
+  <div class="lf"><input type="range" id="pos4" min="0" max="1000" value="0" aria-label="Позиция"><div class="lf-c"><span id="c4">0:00</span><div><button class="ib" data-prev title="Назад"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button><button class="play" data-pp title="Играть/пауза"><svg viewBox="0 0 24 24" fill="currentColor" class="ppI"><path d="M7 4v16l13-8z"/></svg></button><button class="ib" data-next title="Вперёд"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button></div><span id="t4">0:00</span></div></div>
 </div>
+
+<section id="sheet" aria-label="Сейчас играет">
+  <div class="sh-bg" id="shBg"></div>
+  <div class="sh-in">
+    <div class="sh-top">
+      <button class="ib" id="shClose" title="Свернуть" style="color:var(--ink)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="sh-k">Сейчас играет<b id="shFrom"></b></div>
+      <button class="ib" id="shAdd" title="В плейлист" style="color:var(--ink)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+    </div>
+    <div class="sh-art" id="shArt"></div>
+    <div class="ytslot" id="slotSheet"></div>
+    <div class="sh-meta"><div><div class="ti" id="sTi">—</div><div class="ar" id="sAr"></div></div><button class="ib" id="sLike" title="В избранное"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.5-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.5-9 9-9 9z"/></svg></button></div>
+    <div><input type="range" id="pos3" min="0" max="1000" value="0" aria-label="Позиция"><div class="prog"><span id="c3">0:00</span><span id="t3" style="text-align:right">0:00</span></div></div>
+    <div class="ctr big"><button class="ib" data-shuf title="Перемешать"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button><button class="ib" data-prev title="Назад"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button><button class="play" data-pp title="Играть/пауза"><svg viewBox="0 0 24 24" fill="currentColor" class="ppI"><path d="M7 4v16l13-8z"/></svg></button><button class="ib" data-next title="Вперёд"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button><button class="ib" data-rep title="Повтор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 01-3 3H3"/></svg></button></div>
+    <div class="sh-row"><button class="pill ghost" data-lyr><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg>Текст</button><button class="pill ghost" data-v="queue" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h12M4 12h12M4 18h8M18 14v6l4-3z"/></svg>Очередь</button></div>
+    <div class="lyrCard glass" id="lyrCard2"><div class="h">Текст песни <span>развернуть ↗</span></div><div id="pvBox2"></div></div>
+  </div>
+</section>
+<div class="ytbox" id="ytbox"><div id="yt"></div></div>
 
 <div class="pop glass" id="themePop"></div>
 <div class="menu glass" id="plMenu"></div>
@@ -514,7 +587,7 @@ function render(){
  const liked=new Set(S.lists.likes.map(t=>t.id)),playing=S.cur&&!paused();
  $('list').innerHTML=L.map((t,i)=>{const c=S.cur&&S.cur.id===t.id,lk=liked.has(t.id);return`<div class="row${c?' cur':''}" data-i="${i}">
   <span class="num">${c&&playing?I.eq:i+1}</span>
-  <div class="tt"><div class="thumb" style='background-image:${esc(artCss(t))}'></div><div class="ti">${esc(t.title)}${t.kind==='preview'&&!S.key?'<span class="tag">превью</span>':''}</div></div>
+  <div class="tt"><div class="thumb" style='background-image:${esc(artCss(t))}'></div><div style="min-width:0"><div class="ti">${esc(t.title)}${t.kind==='preview'&&!S.key?'<span class="tag">превью</span>':''}</div><div class="ar m-only">${esc(t.artist)}</div></div></div>
   <span class="ar2">${esc(t.artist)}</span><span class="al">${esc(t.album||'—')}</span>
   ${t.kind!=='local'?`<button class="mini-b" data-add="${i}" title="В плейлист">${I.plus}</button><button class="mini-b${lk?' on':''}" data-like="${i}" title="В избранное">${I.heart(lk)}</button>`:'<span></span><span></span>'}
   <span class="dur">${fmt(t.dur)}</span></div>`}).join('');
@@ -540,7 +613,7 @@ function plMenu(t,btn){
 $('delPl').onclick=()=>{const p=plOf(S.view);if(p&&confirm('Удалить плейлист «'+p.name+'»?')){S.pls=S.pls.filter(x=>x!==p);store.set('pls',S.pls);setView('playlists')}};
 $('npLike').onclick=()=>{if(S.cur&&S.cur.kind!=='local')toggleLike(S.cur)};
 $('npAdd').onclick=e=>{e.stopPropagation();if(S.cur&&S.cur.kind!=='local')plMenu(S.cur,$('npAdd'))};
-function likeBtn(){const on=!!(S.cur&&S.lists.likes.some(x=>x.id===S.cur.id));$('npLike').classList.toggle('acc',on);$('npLike').classList.toggle('ghost',!on);$('npLike').querySelector('span').textContent=on?'В избранном':'В избранное'}
+function likeBtn(){const on=!!(S.cur&&S.lists.likes.some(x=>x.id===S.cur.id));for(const id of['sLike','bLike']){$(id).classList.toggle('on',on);$(id).innerHTML=I.heart(on)}$('npLike').classList.toggle('acc',on);$('npLike').classList.toggle('ghost',!on);$('npLike').querySelector('span').textContent=on?'В избранном':'В избранное'}
 
 /* ================= YOUTUBE ================= */
 let ytp=null,ytReady=false,ytPending=null;
@@ -572,11 +645,11 @@ async function play(t){
  let vid=t.kind==='yt'?t.vid:null;
  if(t.kind==='preview'&&S.key){try{vid=await resolveYT(t);if(vid)t.viaYT=true}catch{}}
  if(S.cur!==t)return;
- $('side').classList.toggle('yt',!!vid);
+ document.body.classList.toggle('yt',!!vid);
  if(vid)ytLoad(vid);else{aud.src=t.src;if(t.kind==='local')initAudio();aud.play().catch(()=>{$('nAr').textContent='Не удалось воспроизвести'})}
  const bg=artCss(t);
- $('bigArt').innerHTML='';[$('bigArt'),$('mArt'),$('lArt')].forEach(el=>el.style.backgroundImage=bg);
- $('nTi').textContent=$('mTi').textContent=$('lTi').textContent=t.title;$('nAr').textContent=$('mAr').textContent=$('lAr').textContent=t.artist;
+ $('bigArt').innerHTML='';[$('bigArt'),$('mArt'),$('lArt'),$('shArt'),$('shBg')].forEach(el=>el.style.backgroundImage=bg);$('shFrom').textContent=$('title').textContent;
+ for(const id of['nTi','mTi','lTi','sTi'])$(id).textContent=t.title;for(const id of['nAr','mAr','lAr','sAr'])$(id).textContent=t.artist;
  document.title=t.title+' — Волна';
  if('mediaSession'in navigator){try{navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist,artwork:t.art?[{src:t.art,sizes:'512x512'}]:[]})}catch{}}
  if(t.kind!=='local'){const R=S.lists.recent.filter(x=>x.id!==t.id);R.unshift(strip(t));S.lists.recent=R.slice(0,50);store.set('recent',S.lists.recent)}
@@ -586,15 +659,15 @@ function ended(){if(S.repeat){seek(0);isYT()?ytp.playVideo():aud.play()}else ste
 function step(d){if(!S.queue.length)return;if(S.shuffle&&d>0)S.qi=Math.random()*S.queue.length|0;else S.qi=(S.qi+d+S.queue.length)%S.queue.length;play(S.queue[S.qi])}
 function toggle(){if(!S.cur){startList(false);return}if(isYT())paused()?ytp?.playVideo?.():ytp?.pauseVideo?.();else aud.paused?aud.play().catch(()=>{}):aud.pause()}
 $$('[data-pp]').forEach(b=>b.onclick=toggle);$$('[data-next]').forEach(b=>b.onclick=()=>step(1));$$('[data-prev]').forEach(b=>b.onclick=()=>ctime()>3?seek(0):step(-1));
-$('shuf').onclick=()=>{S.shuffle=!S.shuffle;$('shuf').classList.toggle('on',S.shuffle)};
-$('rep').onclick=()=>{S.repeat=!S.repeat;$('rep').classList.toggle('on',S.repeat)};
+$$('[data-shuf]').forEach(b=>b.onclick=()=>{S.shuffle=!S.shuffle;$$('[data-shuf]').forEach(x=>x.classList.toggle('on',S.shuffle))});
+$$('[data-rep]').forEach(b=>b.onclick=()=>{S.repeat=!S.repeat;$$('[data-rep]').forEach(x=>x.classList.toggle('on',S.repeat))});
 if('mediaSession'in navigator){try{navigator.mediaSession.setActionHandler('nexttrack',()=>step(1));navigator.mediaSession.setActionHandler('previoustrack',()=>step(-1))}catch{}}
 aud.addEventListener('ended',()=>{if(!isYT())ended()});
 aud.addEventListener('error',()=>{if(S.cur&&!isYT()&&aud.src){$('nAr').textContent='Трек недоступен, пропускаю…';setTimeout(()=>step(1),1500)}});
 function setP(el,v){el.style.setProperty('--p',v+'%')}
 $('vol').oninput=e=>{volume=+e.target.value;aud.volume=volume/100;ytp?.setVolume?.(volume);setP(e.target,volume);store.set('vol',volume)};
 let seeking=false;
-['pos','pos2'].forEach(id=>{$(id).addEventListener('input',e=>{seeking=true;setP(e.target,e.target.value/10)});$(id).addEventListener('change',e=>{const d=cdur();if(d)seek(e.target.value/1000*d);seeking=false})});
+['pos','pos2','pos3','pos4'].forEach(id=>{$(id).addEventListener('input',e=>{seeking=true;setP(e.target,e.target.value/10)});$(id).addEventListener('change',e=>{const d=cdur();if(d)seek(e.target.value/1000*d);seeking=false})});
 let lastP=null;
 function uiState(){const p=paused();if(p===lastP)return;lastP=p;$$('.ppI').forEach(s=>s.innerHTML=p?'<path d="M7 4v16l13-8z"/>':'<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>');if(S.view!=='settings')render()}
 let lastUi=0;
@@ -602,11 +675,11 @@ function tick(now){
  try{
   if(S.cur){
    const t=ctime();
-   if(now-lastUi>200){lastUi=now;const d=cdur();$('c1').textContent=$('c2').textContent=fmt(t);$('t1').textContent=$('t2').textContent=fmt(d);
-    if(!seeking&&d){const p=t/d*1000;for(const id of['pos','pos2']){$(id).value=p;setP($(id),p/10)}}uiState()}
+   if(now-lastUi>200){lastUi=now;const d=cdur();for(const k of[1,2,3,4]){$('c'+k).textContent=fmt(t);$('t'+k).textContent=fmt(d)}
+    if(!seeking&&d){const p=t/d*1000;for(const id of['pos','pos2','pos3','pos4']){$(id).value=p;setP($(id),p/10)}}$('barLine').style.width=(d?t/d*100:0)+'%';uiState()}
    syncLyrics(t);
   }
-  drawViz();
+  drawViz();placeYT();
  }catch(e){console.error(e)}
  requestAnimationFrame(tick);
 }
@@ -691,8 +764,8 @@ function syncLyrics(time){
 }
 $('lyrBody').addEventListener('click',e=>{const l=e.target.closest('.ly[data-t]');if(l){seek(+l.dataset.t+.01);S.userScroll=0;S.lrcIdx=-2}});
 ['wheel','touchmove'].forEach(ev=>$('lyrBody').addEventListener(ev,()=>S.userScroll=Date.now(),{passive:true}));
-function toggleLyr(force){const o=$('lyrFull').classList.toggle('open',force);if(o){S.lrcIdx=-2;S.userScroll=0}}
-$('lyrOpen').onclick=()=>toggleLyr();$('lyrCard').onclick=()=>toggleLyr(true);$('lyrClose').onclick=()=>toggleLyr(false);
+function toggleLyr(force){const open=$('lyrFull').classList.contains('open'),want=force===undefined?!open:force;if(want&&!open){openLayer('lyr');S.lrcIdx=-2;S.userScroll=0}else if(!want&&open)closeLayer('lyr')}
+$('lyrOpen').onclick=()=>toggleLyr();$('lyrCard').onclick=()=>toggleLyr(true);$('lyrCard2').onclick=()=>toggleLyr(true);$('lyrClose').onclick=()=>toggleLyr(false);
 $$('[data-lyr]').forEach(b=>b.onclick=()=>toggleLyr());
 $('lyrFix').onclick=()=>{
  if(!S.cur)return;S.lrc=null;S.lineEls=[];
@@ -714,6 +787,32 @@ function drawViz(){
   const h=Math.max(2,v*H);g.fillStyle=i/n<=prog?acc:'rgba(255,255,255,.28)';
   g.fillRect(i*bw+1,H-h,Math.max(1,bw-2),h);
  }
+}
+
+/* ================= MOBILE: layers, sheet, YouTube placement ================= */
+const layers={sheet:$('sheet'),lyr:$('lyrFull')};
+function openLayer(n){if(layers[n].classList.contains('open'))return;layers[n].classList.add('open');try{history.pushState({layer:n},'')}catch{}}
+function closeLayer(n){if(!layers[n].classList.contains('open'))return;if(history.state?.layer===n)history.back();else layers[n].classList.remove('open')}
+addEventListener('popstate',()=>{const st=history.state?.layer;if(st!=='lyr')layers.lyr.classList.remove('open');if(st!=='lyr'&&st!=='sheet')layers.sheet.classList.remove('open')});
+$('app').querySelector('.mini').addEventListener('click',()=>{if(innerWidth<=1150&&S.cur)openLayer('sheet')});
+$('shClose').onclick=()=>closeLayer('sheet');
+$$('[data-close]').forEach(b=>b.addEventListener('click',()=>closeLayer('sheet')));
+$('shAdd').onclick=e=>{e.stopPropagation();if(S.cur&&S.cur.kind!=='local')plMenu(S.cur,$('shAdd'))};
+$('sLike').onclick=$('bLike').onclick=e=>{e.stopPropagation();if(S.cur&&S.cur.kind!=='local')toggleLike(S.cur)};
+{const sh=$('sheet'),inner=sh.querySelector('.sh-in');let y0=null,dy=0;
+ sh.addEventListener('touchstart',e=>{if(e.target.closest('input,.lyrCard,button')||inner.scrollTop>0){y0=null;return}y0=e.touches[0].clientY;dy=0;sh.style.transition='none'},{passive:true});
+ sh.addEventListener('touchmove',e=>{if(y0==null)return;dy=Math.max(0,e.touches[0].clientY-y0);sh.style.transform=`translateY(${dy}px)`},{passive:true});
+ sh.addEventListener('touchend',()=>{if(y0==null)return;sh.style.transition='';sh.style.transform='';if(dy>110)closeLayer('sheet');y0=null});}
+new MutationObserver(()=>{$('pvBox2').innerHTML=$('pvBox').innerHTML}).observe($('pvBox'),{childList:true,subtree:true,characterData:true});
+$('pvBox2').innerHTML=$('pvBox').innerHTML;
+const ytb=$('ytbox');let ytKey='';
+function placeYT(){
+ if(!isYT()){if(ytb.style.display!=='none')ytb.style.display='none';ytKey='';return}
+ const order=[layers.lyr.classList.contains('open')&&$('lArt'),layers.sheet.classList.contains('open')&&$('slotSheet'),$('slotSide'),$('mArt')];
+ for(const el of order){if(!el)continue;const r=el.getBoundingClientRect();if(r.width<2||r.height<2)continue;
+  const z=el.id==='lArt'?50:el.id==='slotSheet'?30:5,k=[r.left,r.top,r.width,r.height,z].map(v=>Math.round(v)).join();
+  if(k!==ytKey){ytKey=k;Object.assign(ytb.style,{display:'block',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',zIndex:z,borderRadius:getComputedStyle(el).borderRadius})}return}
+ ytb.style.display='none';ytKey='';
 }
 
 /* ================= START ================= */
