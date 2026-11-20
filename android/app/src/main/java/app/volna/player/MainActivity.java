@@ -10,7 +10,18 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
+import android.Manifest;
+import android.content.ContentValues;
+import android.content.pm.PackageManager;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Base64;
 import android.webkit.CookieManager;
+import android.webkit.JavascriptInterface;
+import android.webkit.PermissionRequest;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
@@ -24,6 +35,8 @@ public class MainActivity extends Activity {
     static final String HOME = "https://asarabombom-ctrl.github.io/volna/";
     static final String HOST = "asarabombom-ctrl.github.io";
     static final int FILE_REQ = 7;
+    static final int MIC_REQ = 8;
+    PermissionRequest pendingPerm;
 
     WebView web;
     FrameLayout root;
@@ -66,6 +79,8 @@ public class MainActivity extends Activity {
         s.setAllowFileAccess(false);
         s.setUserAgentString(s.getUserAgentString() + " VolnaApp/" + appVersion());
 
+        web.addJavascriptInterface(new Bridge(), "VolnaAndroid");
+
         CookieManager cm = CookieManager.getInstance();
         cm.setAcceptCookie(true);
         cm.setAcceptThirdPartyCookies(web, true);
@@ -101,6 +116,24 @@ public class MainActivity extends Activity {
 
             @Override
             public void onHideCustomView() { exitFull(); }
+
+            // Микрофон для записи каверов: только для нашего сайта
+            @Override
+            public void onPermissionRequest(PermissionRequest req) {
+                runOnUiThread(() -> {
+                    Uri o = req.getOrigin();
+                    boolean ours = o != null && HOST.equals(o.getHost());
+                    boolean audio = false;
+                    for (String r : req.getResources()) if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(r)) audio = true;
+                    if (!ours || !audio) { req.deny(); return; }
+                    if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                        req.grant(new String[]{PermissionRequest.RESOURCE_AUDIO_CAPTURE});
+                    } else {
+                        pendingPerm = req;
+                        requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, MIC_REQ);
+                    }
+                });
+            }
 
             @Override
             public boolean onShowFileChooser(WebView v, ValueCallback<Uri[]> cb, FileChooserParams p) {
@@ -170,6 +203,44 @@ public class MainActivity extends Activity {
             return;
         }
         super.onActivityResult(req, res, data);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int code, String[] perms, int[] res) {
+        super.onRequestPermissionsResult(code, perms, res);
+        if (code == MIC_REQ && pendingPerm != null) {
+            if (res.length > 0 && res[0] == PackageManager.PERMISSION_GRANTED)
+                pendingPerm.grant(new String[]{PermissionRequest.RESOURCE_AUDIO_CAPTURE});
+            else pendingPerm.deny();
+            pendingPerm = null;
+        }
+    }
+
+    // Сохранение записи из сайта в «Загрузки»
+    class Bridge {
+        @JavascriptInterface
+        public boolean saveFile(String name, String mime, String b64) {
+            try {
+                byte[] data = Base64.decode(b64, Base64.DEFAULT);
+                String safe = name.replaceAll("[\\\\/:*?\"<>|]", " ");
+                if (android.os.Build.VERSION.SDK_INT >= 29) {
+                    ContentValues v = new ContentValues();
+                    v.put(MediaStore.Downloads.DISPLAY_NAME, safe);
+                    v.put(MediaStore.Downloads.MIME_TYPE, mime);
+                    v.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/Volna");
+                    Uri u = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, v);
+                    if (u == null) return false;
+                    try (OutputStream os = getContentResolver().openOutputStream(u)) { os.write(data); }
+                } else {
+                    File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+                    if (dir == null) return false;
+                    try (FileOutputStream os = new FileOutputStream(new File(dir, safe))) { os.write(data); }
+                }
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }
     }
 
     @Override
