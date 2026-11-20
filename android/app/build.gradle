@@ -1,0 +1,33 @@
+plugins { id 'com.android.application' }
+
+def buildNum = (System.getenv('BUILD_NUM') ?: '1').toInteger()
+
+android {
+    namespace 'app.volna.player'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'app.volna.player'
+        minSdk 24
+        targetSdk 35
+        versionCode buildNum
+        versionName "1.0.${buildNum}"
+    }
+    signingConfigs {
+        release {
+            storeFile file('volna.jks')
+            storePassword 'volna-player'
+            keyAlias 'volna'
+            keyPassword 'volna-player'
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
