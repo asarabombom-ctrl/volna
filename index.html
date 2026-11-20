@@ -194,7 +194,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
 .ly:hover{opacity:.9}
 .ly.on{opacity:1}
 .ly.past{opacity:.75}
-.ly.far{filter:blur(1.2px)}
+.ly.far{opacity:.4}
 .w{--f:0%;color:transparent;-webkit-background-clip:text;background-clip:text;background-image:linear-gradient(90deg,#fff var(--f),rgba(255,255,255,.38) var(--f))}
 .ly.past .w{--f:100%}
 .dots{display:flex;gap:10px;height:40px;align-items:center}
@@ -327,12 +327,12 @@ button:active{transform:scale(.96)}
 @media(prefers-reduced-motion:reduce){.fade,.dlg,#modal.open{animation:none}}
 
 /* --- karaoke stage: beat cover, blurred bg, clip mode --- */
-#lyrFull{--beat:0}
-.lbg{position:absolute;inset:-12%;background:center/cover no-repeat;filter:blur(70px) saturate(1.5);opacity:.5;transform:scale(calc(1.02 + var(--beat)*.05));pointer-events:none;transition:opacity .8s}
+#lyrFull .lstage,#lyrFull .ly{--beat:0}
+.lbg{position:absolute;inset:-12%;background:center/cover no-repeat;filter:blur(60px) saturate(1.5);opacity:.5;transform:translateZ(0) scale(1.05);pointer-events:none;transition:opacity .8s}
 .lmain{position:relative;flex:1;display:flex;min-height:0}
 .lstage{flex:0 0 min(40%,560px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:0 0 6vh clamp(18px,5vw,64px)}
 .lcov{position:relative;width:min(100%,50vh);aspect-ratio:1;border-radius:24px;background:#222 center/cover no-repeat;transform:scale(calc(1 + var(--beat)*.06)) rotate(calc(var(--beat)*-.6deg));box-shadow:0 30px 80px rgba(0,0,0,.5);will-change:transform}
-.lcov::before{content:"";position:absolute;inset:-7%;border-radius:32px;background:var(--glow,var(--acc));filter:blur(46px);opacity:calc(.18 + var(--beat)*.6);z-index:-1}
+.lcov::before{content:"";position:absolute;inset:-7%;border-radius:32px;background:var(--glow,var(--acc));filter:blur(46px);opacity:calc(.18 + var(--beat)*.6);z-index:-1;will-change:opacity}
 .lcov::after{content:"";position:absolute;inset:0;border-radius:inherit;border:2px solid rgba(255,255,255,.7);opacity:calc(var(--beat)*.7);transform:scale(calc(1 + (1 - var(--beat))*.12))}
 .lcov i{position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,rgba(255,255,255,.22),transparent 45%);pointer-events:none}
 .leq{display:flex;gap:5px;align-items:flex-end;height:34px}
@@ -366,6 +366,22 @@ button:active{transform:scale(.96)}
 .appi .dn{flex:1}.appi .dn b{display:block}.appi .dn span{font-size:12px;color:var(--mut)}
 .howto{font-size:13px;color:var(--mut);margin:6px 0 0;padding-left:18px;line-height:1.6}
 .linkbtn{background:none;border:0;color:var(--acc2,var(--acc));font-weight:700;font-size:13px;cursor:pointer;padding:4px}
+
+/* --- search more, lyric offset, light mode --- */
+.more{display:flex;justify-content:center;padding:14px}
+.loff{display:flex;align-items:center;border-radius:999px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.14);padding:2px}
+.loff button{min-width:30px;min-height:32px;border-radius:999px;font-weight:800;color:rgba(255,255,255,.85);padding:0 8px;font-size:13px;font-variant-numeric:tabular-nums}
+.loff button:hover{background:rgba(255,255,255,.12)}
+.loff #offV{font-size:12px;font-weight:700;opacity:.7;min-width:52px}
+.loff.on #offV{opacity:1;color:#fff}
+.lwarn{font:600 14px/1.5 Manrope,system-ui,sans-serif;color:rgba(255,255,255,.8);background:rgba(0,0,0,.25);border-radius:14px;padding:10px 14px;margin:0 0 28px;max-width:560px}
+.tp-lite{display:flex;gap:8px;align-items:center;font-weight:700;font-size:13px;margin-top:12px;cursor:pointer}.tp-lite span{font-weight:500;color:var(--mut)}
+.lite *,.lite *::before,.lite *::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.lite .glass{background:color-mix(in srgb,#0d0b14 88%,var(--acc) 6%)!important}
+.lite .lbg,.lite .lcov::before,.lite .lcov::after{display:none}
+.lite #lyrBody{-webkit-mask-image:none;mask-image:none}
+.lite .fade,.lite .dlg{animation:none}
+@media(max-width:760px){.loff button{min-width:26px;padding:0 6px}.loff #offV{min-width:44px;font-size:11px}}
 </style>
 </head>
 <body>
@@ -472,6 +488,7 @@ button:active{transform:scale(.96)}
     <div class="thumb" id="lArt"></div>
     <div class="grow"><div class="ti" id="lTi">—</div><div class="ar" id="lAr" style="color:rgba(255,255,255,.7)"></div></div>
     <div class="seg lmode" id="lMode" role="tablist" aria-label="Фон текста"><button data-m="cover">Обложка</button><button data-m="clip">Клип</button></div>
+    <div class="loff" id="lOff" title="Сдвиг текста, если слова не в такт"><button data-off="-0.3" aria-label="Текст позже">−</button><button data-off="0" id="offV" title="Сбросить сдвиг">0.0 с</button><button data-off="0.3" aria-label="Текст раньше">+</button></div>
     <button class="pill ghost" id="lyrFix">Найти вручную</button>
     <button class="round" id="lyrClose" title="Закрыть (Esc)" style="background:rgba(0,0,0,.25)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>
@@ -580,6 +597,7 @@ function renderThemePop(){
  <div class="tp-row">${QUICK.map(c=>`<button class="dot${c===T.acc?' on':''}" data-acc="${c}" style="background:${c}" aria-label="Цвет ${c}"></button>`).join('')}<label class="dot pick${QUICK.includes(T.acc)?'':' on'}" title="Любой цвет"><input type="color" id="accPick" value="${T.acc}" aria-label="Любой цвет"></label></div>
  <div class="tp-h">Фон</div>
  <div class="tp-row"><label class="pill ghost" style="cursor:pointer">Загрузить свой фон<input type="file" accept="image/*" id="bgPick" hidden></label>${T.preset&&over[theme]?'<button class="pill ghost" data-reset>Сбросить</button>':''}${!T.preset?'<button class="pill ghost" data-deltheme>Удалить тему</button>':''}</div>
+ <label class="tp-lite"><input type="checkbox" id="liteT" ${perf.lite?'checked':''}> Лёгкий режим <span>— меньше эффектов, если тормозит</span></label>
  <p class="tp-note" id="tpNote">${T.preset?'Изменения сохраняются в этой теме. «Сбросить» вернёт исходный вид.':'Своя тема хранится в этом браузере.'}</p>`;
 }
 $('themePop').addEventListener('click',e=>{
@@ -593,6 +611,7 @@ $('themePop').addEventListener('click',e=>{
 });
 $('themePop').addEventListener('input',e=>{if(e.target.id==='accPick')setProp('acc',e.target.value,true)});
 $('themePop').addEventListener('change',e=>{
+ if(e.target.id==='liteT'){setLite(e.target.checked);toast(e.target.checked?'Лёгкий режим включён':'Все эффекты включены');return}
  if(e.target.id==='accPick'){renderThemePop();return}
  if(e.target.id==='bgPick'){
   const f=e.target.files[0];if(!f)return;$('tpNote').textContent='Обрабатываю картинку…';
@@ -633,6 +652,22 @@ function normP(it,clips){
  const art=!clips&&/googleusercontent|=w\d+-h\d+/.test(it.thumbnail||'')?it.thumbnail.replace(/=w\d+-h\d+/,'=w544-h544'):`https://i.ytimg.com/vi/${vid}/hqdefault.jpg`;
  return{id:'y'+vid,kind:'yt',vid,clip:!!clips,title:cleanT(title),artist,album:'',art,dur:it.duration>0?it.duration:0};
 }
+const tkey=t=>(t.artist+' '+t.title).toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+function ytItems(j,clips,seen,keys,long){
+ return(j.items||[]).filter(i=>i.type==='stream'&&!i.isShort&&!(i.duration>0&&i.duration<45)).map(i=>normP(i,clips))
+  .filter(t=>{if(!t||(!long&&t.dur>=900)||seen.has(t.vid))return false;const k=tkey(t);if(keys.has(k))return false;seen.add(t.vid);keys.add(k);return true});
+}
+const sPath=(q,f,np)=>np?`/nextpage/search?nextpage=${encodeURIComponent(np)}&q=${encodeURIComponent(q)}&filter=${f}`:`/search?q=${encodeURIComponent(q)}&filter=${f}`;
+// Поиск: две ленты параллельно (песни YouTube Music + обычные видео / клипы), без повторов, с подгрузкой
+async function ytSearch(q,type,st){
+ const A=type==='clips'?'music_videos':'music_songs',B='videos';
+ const[ra,rb]=await Promise.allSettled([piped(sPath(q,A,st?.a)),(st&&!st.b)?Promise.resolve({items:[]}):piped(sPath(q,B,st?.b))]);
+ if(ra.status==='rejected'&&rb.status==='rejected')throw ra.reason;
+ const seen=st?.seen||new Set(),keys=st?.keys||new Set();
+ const ja=ra.value||{},jb=rb.value||{};
+ const res=[...ytItems(ja,type==='clips',seen,keys),...ytItems(jb,true,seen,keys)];
+ return{res,st:{a:ja.nextpage||null,b:jb.nextpage||null,seen,keys}};
+}
 async function ytFind(q,type){
  const clips=type==='clips';
  const j=await piped(`/search?q=${encodeURIComponent(q)}&filter=${clips?'music_videos':'music_songs'}`);
@@ -657,12 +692,19 @@ async function loadHome(){
 }
 async function doSearch(){
  const q=S.lastQ;if(!q)return;const tok=++S.sTok;
- S.lists.search=[];S.searching=true;S.warn='';render();
- let res=[],src='yt',warn='';
- try{res=await ytFind(q,S.sType)}catch{try{res=await itunes(q);src='it';warn=OFFLINE}catch{warn='Нет связи — проверь интернет.'}}
+ S.lists.search=[];S.searching=true;S.warn='';S.sNext=null;render();
+ let res=[],src='yt',warn='',st=null;
+ try{({res,st}=await ytSearch(q,S.sType))}catch{try{res=await itunes(q);src='it';warn=OFFLINE}catch{warn='Нет связи — проверь интернет.'}}
  if(tok!==S.sTok)return;
- S.lists.search=res;S.src=src;S.warn=warn;S.searching=false;render();
+ S.lists.search=res;S.src=src;S.warn=warn;S.searching=false;S.sNext=st&&(st.a||st.b)?st:null;render();
 }
+async function searchMore(){
+ if(!S.sNext||S.moreBusy||S.view!=='search')return;const tok=S.sTok;S.moreBusy=true;render();
+ try{const{res,st}=await ytSearch(S.lastQ,S.sType,S.sNext);if(tok!==S.sTok)return;S.lists.search.push(...res);S.sNext=st.a||st.b?st:null}
+ catch{if(tok===S.sTok)toast('Не получилось загрузить ещё — попробуй снова')}
+ finally{if(tok===S.sTok){S.moreBusy=false;render()}}
+}
+document.querySelector('.content').addEventListener('scroll',e=>{const c=e.currentTarget;if(S.view==='search'&&S.sNext&&!S.moreBusy&&c.scrollTop+c.clientHeight>c.scrollHeight-600)searchMore()},{passive:true});
 $('sform').addEventListener('submit',e=>{
  e.preventDefault();const q=$('q').value.trim();if(!q)return;$('q').blur();
  S.view='search';S.lastQ=q;navOn();doSearch();
@@ -716,9 +758,10 @@ function render(){
   <div class="tt"><div class="thumb" style='background-image:${esc(artCss(t))}'></div><div style="min-width:0"><div class="ti">${esc(t.title)}${t.kind==='preview'&&S.src==='it'&&S.view==='search'?'<span class="tag">превью</span>':''}</div><div class="ar m-only">${esc(t.artist)}</div></div></div>
   <span class="ar2">${esc(t.artist)}</span><span class="al">${esc(t.album||'—')}</span>
   ${t.kind!=='local'?`<button class="mini-b" data-add="${i}" title="В плейлист">${I.plus}</button><button class="mini-b${lk?' on':''}" data-like="${i}" title="В избранное">${I.heart(lk)}</button>`:'<span></span><span></span>'}
-  <span class="dur">${fmt(t.dur)}</span></div>`}).join('');
+  <span class="dur">${fmt(t.dur)}</span></div>`}).join('')+(S.view==='search'&&S.sNext?`<div class="more"><button class="pill ghost" data-more${S.moreBusy?' disabled':''}>${S.moreBusy?'Загружаю…':'Показать ещё'}</button></div>`:'');
 }
 $('list').addEventListener('click',e=>{
+ if(e.target.closest('[data-more]')){searchMore();return}
  const L=cur();
  if(e.target.closest('[data-newpl]')){newPl();return}
  const p=e.target.closest('[data-pl]');if(p){setView('pl:'+p.dataset.pl);return}
@@ -795,11 +838,21 @@ let seeking=false;
 ['pos','pos2','pos3','pos4'].forEach(id=>{$(id).addEventListener('input',e=>{seeking=true;setP(e.target,e.target.value/10)});$(id).addEventListener('change',e=>{const d=cdur();if(d)seek(e.target.value/1000*d);seeking=false})});
 let lastP=null;
 function uiState(){const p=paused();if(p===lastP)return;lastP=p;if('mediaSession'in navigator)try{navigator.mediaSession.playbackState=p?'paused':'playing'}catch{}$$('.ppI').forEach(s=>s.innerHTML=p?'<path d="M7 4v16l13-8z"/>':'<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>');if(S.view!=='settings')render()}
+const perf={lite:store.get('lite',null),acc:0,n:0,slow:0,last:0};
+function setLite(on,quiet){perf.lite=on;document.documentElement.classList.toggle('lite',!!on);if(!quiet)store.set('lite',on)}
+setLite(!!perf.lite,true);
+function fpsWatch(now){
+ if(perf.lite!==null||document.hidden){perf.last=0;return}
+ const dt=perf.last?now-perf.last:0;perf.last=now;if(!dt||dt>250)return;
+ perf.acc+=dt;perf.n++;if(perf.acc<3000)return;
+ const avg=perf.acc/perf.n;perf.acc=perf.n=0;
+ if(avg>26){if(++perf.slow>=2){setLite(true,true);toast('Включил лёгкий режим — так быстрее. Выключить можно в «Сменить тему»')}}else perf.slow=0;
+}
 let lastUi=0;const sm={raw:-1,v:0,w:0};
 // YouTube отдаёт время рывками — сглаживаем по часам браузера
 function smoothT(now){const t=ctime();if(paused())return t;if(t!==sm.raw){sm.raw=t;sm.v=t;sm.w=now}return sm.v+Math.min(.5,(now-sm.w)/1000)}
 function tick(now){
- try{
+ try{fpsWatch(now);
   if(S.cur){
    const t=ctime();
    if(now-lastUi>200){lastUi=now;const d=cdur();for(const k of[1,2,3,4]){$('c'+k).textContent=fmt(t);$('t'+k).textContent=fmt(d)}
@@ -842,7 +895,8 @@ function parseLRC(txt){
  out.sort((a,b)=>a.t-b.t);
  out.forEach((l,i)=>{
   const next=out[i+1]?.t??l.t+6;
-  const dur=Math.max(.6,Math.min(next-l.t-.05,l.text.length*.075+1.2));
+  const gap=next-l.t,est=l.text.length*.1+.8;
+  const dur=Math.max(.5,gap<7?gap*.9:Math.min(gap-.1,est*1.3));
   if(l.words&&l.words.length){l.words.forEach((w,k)=>{w.d=Math.max(.1,(l.words[k+1]?.t??l.t+dur)-w.t)})}
   else{const parts=l.text.split(' ').filter(Boolean),tot=parts.reduce((s,p)=>s+p.length+1,0)||1;let acc=l.t;
    l.words=parts.map(p=>{const d=dur*(p.length+1)/tot,w={t:acc,d,text:p};acc+=d;return w})}
@@ -850,20 +904,29 @@ function parseLRC(txt){
  return out;
 }
 let lyrTok=0;
+const lrcOff=store.get('lrcOff',{});
+const waitDur=async(t,tok)=>{if(t.kind==='yt'&&t.dur>40)return t.dur;for(let k=0;k<20;k++){const d=S.cur===t?cdur():0;if(d>40||(t.kind!=='preview'&&t.dur>40&&!isYT()))return d||t.dur;if(tok!==lyrTok)return 0;await new Promise(r=>setTimeout(r,250))}return isYT()?cdur():(t.dur>40?t.dur:0)};
 async function loadLyrics(t,manual){
- const tok=++lyrTok;S.lrc=null;S.lineEls=[];S.lrcIdx=-2;
+ const tok=++lyrTok;S.lrc=null;S.lineEls=[];S.lrcIdx=-2;S.lrcWarn='';offUI();
  const body=$('lyrBody');body.innerHTML='<p class="lmsg">Ищу текст…</p>';$('pvBox').innerHTML='<div class="pv">Ищу текст…</div>';
  const ti=clean(manual?.title??t.title),ar=clean(manual?.artist??(t.artist==='Мой файл'?'':t.artist));
- let hit=null;
+ const J=u=>fetch('https://lrclib.net/api/'+u).then(r=>r.ok?r.json():null).catch(()=>null);
+ let hit=null,cands=[];
  try{
-  if(ar){const r=await fetch(`https://lrclib.net/api/get?artist_name=${encodeURIComponent(ar)}&track_name=${encodeURIComponent(ti)}`);if(r.ok)hit=await r.json()}
-  if(!hit||(!hit.syncedLyrics&&!hit.plainLyrics)){const r=await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent((ar+' '+ti).trim())}`);if(r.ok){const L=await r.json();hit=L.find(x=>x.syncedLyrics)||L.find(x=>x.plainLyrics)||hit}}
- }catch{if(tok===lyrTok){body.innerHTML='<p class="lmsg">Сервис текстов не ответил.</p>';$('pvBox').innerHTML='<div class="pv">Сервис текстов не ответил</div>'}return}
+  const[d,a,b,c]=await Promise.all([waitDur(t,tok),ar?J(`get?artist_name=${encodeURIComponent(ar)}&track_name=${encodeURIComponent(ti)}`):null,ar?J(`search?artist_name=${encodeURIComponent(ar)}&track_name=${encodeURIComponent(ti)}`):null,J(`search?q=${encodeURIComponent((ar+' '+ti).trim())}`)]);
+  if(tok!==lyrTok)return;
+  cands=[a,...(b||[]),...(c||[])].filter(x=>x&&(x.syncedLyrics||x.plainLyrics));
+  const syn=cands.filter(x=>x.syncedLyrics);
+  // берём версию текста, длина которой совпадает с тем, что реально играет
+  if(syn.length){hit=d>0?syn.reduce((m,x)=>Math.abs((x.duration||0)-d)<Math.abs((m.duration||0)-d)?x:m):syn[0];
+   const delta=d>0&&hit.duration?d-hit.duration:0;if(Math.abs(delta)>4)S.lrcWarn=`Эта версия песни на ${Math.round(Math.abs(delta))} с ${delta>0?'длиннее':'короче'} текста — если слова не в такт, подвинь их кнопками ± вверху.`}
+  else hit=cands[0]||null;
+ }catch{}
  if(tok!==lyrTok)return;
- if(!hit||(!hit.syncedLyrics&&!hit.plainLyrics)){const ins=hit?.instrumental;body.innerHTML=`<p class="lmsg">${ins?'Инструментал — без слов.':'Текст не найден. Нажми «Найти вручную» и уточни артиста и название.'}</p>`;$('pvBox').innerHTML=`<div class="pv">${ins?'Инструментал':'Текст не найден'}</div>`;return}
+ if(!hit){body.innerHTML=`<p class="lmsg">${cands.some(x=>x.instrumental)?'Инструментал — без слов.':'Текст не найден. Нажми «Найти вручную» и уточни артиста и название.'}</p>`;$('pvBox').innerHTML='<div class="pv">Текст не найден</div>';return}
  if(hit.syncedLyrics){
   S.lrc=parseLRC(hit.syncedLyrics);
-  body.innerHTML='<div class="ly dots" data-i="-1"><i></i><i></i><i></i></div>'+S.lrc.map((l,i)=>`<p class="ly" data-i="${i}" data-t="${l.t}">${l.text?l.words.map(w=>`<span class="w">${esc(w.text)} </span>`).join(''):'♪'}</p>`).join('');
+  body.innerHTML=(S.lrcWarn?`<p class="lwarn">${esc(S.lrcWarn)}</p>`:'')+'<div class="ly dots" data-i="-1"><i></i><i></i><i></i></div>'+S.lrc.map((l,i)=>`<p class="ly" data-i="${i}" data-t="${l.t}">${l.text?l.words.map(w=>`<span class="w">${esc(w.text)} </span>`).join(''):'♪'}</p>`).join('');
   S.lineEls=[...body.querySelectorAll('.ly')];
  }else{
   body.innerHTML=`<div class="plain">${esc(hit.plainLyrics)}</div><p class="lmsg" style="margin-top:30px;font-size:15px">У этой песни текст без таймингов.</p>`;
@@ -871,8 +934,13 @@ async function loadLyrics(t,manual){
  }
  body.scrollTop=0;
 }
+function curOff(){return S.cur?lrcOff[S.cur.id]||0:0}
+function offUI(){const v=curOff();$('offV').textContent=(v>0?'+':'')+v.toFixed(1)+' с';$('lOff').classList.toggle('on',!!v)}
+$('lOff').onclick=e=>{const b=e.target.closest('[data-off]');if(!b||!S.cur)return;
+ if(b.dataset.off==='0')delete lrcOff[S.cur.id];else lrcOff[S.cur.id]=Math.round((curOff()+ +b.dataset.off)*10)/10;
+ if(!lrcOff[S.cur.id])delete lrcOff[S.cur.id];store.set('lrcOff',lrcOff);offUI();S.lrcIdx=-2};
 function syncLyrics(time){
- if(!S.lrc||!S.lineEls.length)return;
+ if(!S.lrc||!S.lineEls.length)return;time+=curOff();
  let i=-1;for(let k=0;k<S.lrc.length;k++){if(S.lrc[k].t<=time+.12)i=k;else break}
  const els=S.lineEls;
  if(i!==S.lrcIdx){
@@ -904,7 +972,10 @@ $('lyrFix').onclick=()=>{
 let ctx,an,data;
 function initAudio(){if(ctx)return;try{ctx=new AudioContext();const src=ctx.createMediaElementSource(aud);an=ctx.createAnalyser();an.fftSize=128;src.connect(an);an.connect(ctx.destination);data=new Uint8Array(an.frequencyBinCount)}catch{}}
 const cv=$('viz'),g=cv.getContext('2d');let ph=0;
+let vizT=0,vizIdle=false;
 function drawViz(){
+ if(document.hidden)return;const nowT=performance.now();if(nowT-vizT<33)return;vizT=nowT;
+ const pz=paused();if(pz&&vizIdle)return;vizIdle=pz;
  const W=cv.clientWidth,H=cv.clientHeight;if(!W)return;if(cv.width!==W*2){cv.width=W*2;cv.height=H*2}
  g.setTransform(2,0,0,2,0,0);g.clearRect(0,0,W,H);
  const n=46,bw=W/n,p=paused(),acc=curAcc(),d=cdur(),prog=d?ctime()/d:0;ph+=.05;
@@ -1080,12 +1151,15 @@ const ytb=$('ytbox'),clipb=$('clipbox');const boxKey=new WeakMap();
 function putBox(box,r,z,rad,cl=''){const k=[r.left,r.top,r.width,r.height,z].map(v=>Math.round(v)).join()+rad+cl;if(boxKey.get(box)===k)return;boxKey.set(box,k);Object.assign(box.style,{display:'block',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',zIndex:z,borderRadius:rad,clipPath:cl})}
 function hideBox(box){if(box.style.display!=='none'){box.style.display='none';boxKey.delete(box)}}
 function coverRect(r){let w=r.width,h=w*9/16;if(h<r.height){h=r.height;w=h*16/9}return{left:r.left+(r.width-w)/2,top:r.top+(r.height-h)/2,width:w,height:h}}
-function placeYT(){
+const radC=new Map();let lyrZc=0,lyrZw=0;
+function radOf(el){let v=radC.get(el);if(v===undefined){v=getComputedStyle(el).borderRadius;radC.set(el,v)}return v}
+function lyrZ(){if(innerWidth!==lyrZw){lyrZw=innerWidth;lyrZc=(+getComputedStyle(layers.lyr).zIndex||20)-1;radC.clear()}return lyrZc}
+function placeYT(){if(document.hidden)return;
  const L=layers.lyr,lyrOpen=L.classList.contains('open'),clipOn=lyrOpen&&S.lyrMode==='clip'&&isYT();
  let bgBox=null;
  if(clipOn){if(clip.vid&&clip.ready)bgBox=clipb;else if(clip.vid===null&&clip.for===S.cur?.id)bgBox=ytb}
  L.classList.toggle('clipv',!!bgBox);
- const R=bgBox&&L.getBoundingClientRect(),lr=bgBox&&coverRect(R),lz=(+getComputedStyle(L).zIndex||20)-1;
+ const R=bgBox&&L.getBoundingClientRect(),lr=bgBox&&coverRect(R),lz=bgBox?lyrZ():0;
  const cl=bgBox?`inset(${Math.round(R.top-lr.top)}px ${Math.round(lr.left+lr.width-R.right)}px ${Math.round(lr.top+lr.height-R.bottom)}px ${Math.round(R.left-lr.left)}px)`:'';
  if(bgBox===clipb)putBox(clipb,lr,lz,'0',cl);else hideBox(clipb);
  if(!isYT()){hideBox(ytb);ytb.classList.remove('clipbg');return}
@@ -1093,7 +1167,7 @@ function placeYT(){
  ytb.classList.remove('clipbg');ytb.style.clipPath='';
  const order=[lyrOpen&&$('lArt'),layers.sheet.classList.contains('open')&&$('slotSheet'),$('slotSide'),$('mArt')];
  for(const el of order){if(!el)continue;const r=el.getBoundingClientRect();if(r.width<2||r.height<2)continue;
-  const z=el.id==='lArt'?50:el.id==='slotSheet'?30:5;putBox(ytb,r,z,getComputedStyle(el).borderRadius);return}
+  const z=el.id==='lArt'?50:el.id==='slotSheet'?30:5;putBox(ytb,r,z,radOf(el));return}
  hideBox(ytb);
 }
 
@@ -1116,9 +1190,11 @@ async function loadBpm(t){
  }catch{}
 }
 function wordStart(t){const L=S.lrc?.[S.lrcIdx];if(!L||!L.words)return null;let w=null;for(const x of L.words){if(x.t<=t)w=x.t;else break}return w}
-let beatOn=false;
+let beatOn=false,beatW=-1,beatLine=null;const stageEl=document.querySelector('.lstage');
+function beatSet(v){if(Math.abs(v-beatW)<.012&&!(v===0&&beatW!==0))return;beatW=v;const x=v.toFixed(2);stageEl.style.setProperty('--beat',x);
+ const ln=S.lineEls[S.lrcIdx+1]||null;if(ln!==beatLine){beatLine?.style.removeProperty('--beat');beatLine=ln}ln?.style.setProperty('--beat',x)}
 function beatTick(){
- const el=layers.lyr;if(!el.classList.contains('open')){if(beatOn){beatOn=false;beat.env=0;el.style.setProperty('--beat',0)}return}
+ const el=layers.lyr;if(!el.classList.contains('open')||document.hidden){if(beatOn){beatOn=false;beat.env=0;beatSet(0)}return}
  beatOn=true;let v=0;
  if(S.cur&&!paused()){
   if(S.cur.kind==='local'&&an){an.getByteFrequencyData(data);let x=0;for(let i=1;i<5;i++)x+=data[i];x/=4*255;beat.pk=Math.max(beat.pk*.997,x,.15);const y=Math.max(0,(x-beat.pk*.62)/(beat.pk*.38));v=y*y}
@@ -1129,8 +1205,8 @@ function beatTick(){
    else if(beat.kick!=null)v=Math.exp(-Math.max(0,t-beat.kick)*6)*.8;
   }
  }
- beat.env=Math.max(v,beat.env*.86);
- el.style.setProperty('--beat',beat.env.toFixed(3));
+ beat.env=Math.max(v,beat.env*.86);if(beat.env<.004)beat.env=0;
+ beatSet(perf.lite?0:beat.env);
 }
 
 /* ================= KARAOKE: clip mode ================= */
