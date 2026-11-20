@@ -1,0 +1,38 @@
+name: Windows EXE
+
+on:
+  push:
+    branches: [main]
+    paths: ['desktop/**', '.github/workflows/windows.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build
+        working-directory: desktop
+        shell: bash
+        run: |
+          npm version 1.0.${{ github.run_number }} --no-git-tag-version
+          npm install --no-audit --no-fund
+          npm run dist
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: windows-latest
+          name: Волна для Windows (последняя версия)
+          body: |
+            Volna-Setup.exe — установщик. Volna-Portable.exe — запуск без установки.
+            Если Windows пишет «неизвестный издатель», нажми «Подробнее» → «Выполнить в любом случае».
+          files: |
+            desktop/dist/Volna-Setup.exe
+            desktop/dist/Volna-Portable.exe
+          make_latest: false
+          overwrite_files: true

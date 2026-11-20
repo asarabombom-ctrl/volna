@@ -2,7 +2,7 @@ name: Android APK
 
 on:
   push:
-    branches: [android]
+    branches: [main, android]
     paths: ['android/**', '.github/workflows/android.yml']
   workflow_dispatch:
 
@@ -26,7 +26,9 @@ jobs:
           BUILD_NUM: ${{ github.run_number }}
         run: gradle -p android assembleRelease --no-daemon
       - name: Rename
-        run: cp android/app/build/outputs/apk/release/app-release.apk Volna-1.0.${{ github.run_number }}.apk
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk Volna-1.0.${{ github.run_number }}.apk
+          cp android/app/build/outputs/apk/release/app-release.apk Volna.apk
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: android-1.0.${{ github.run_number }}
@@ -34,3 +36,11 @@ jobs:
           body: Скачай файл Volna-*.apk на телефон и открой его, чтобы установить.
           files: Volna-1.0.${{ github.run_number }}.apk
           make_latest: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-latest
+          name: Волна для Android (последняя версия)
+          body: Скачай Volna.apk на телефон и открой его, чтобы установить. Новые версии ставятся поверх старой.
+          files: Volna.apk
+          make_latest: false
+          overwrite_files: true
