@@ -508,7 +508,12 @@ async function ytFind(q,type){
  const clips=type==='clips';
  const j=await piped(`/search?q=${encodeURIComponent(q)}&filter=${clips?'music_videos':'music_songs'}`);
  const seen=new Set();
- return(j.items||[]).filter(i=>i.type==='stream'&&!i.isShort).map(i=>normP(i,clips)).filter(t=>t&&!seen.has(t.vid)&&seen.add(t.vid));
+ return(j.items||[]).filter(i=>i.type==='stream'&&!i.isShort).map(i=>normP(i,clips)).filter(t=>t&&(clips||!t.dur||t.dur<900)&&!seen.has(t.vid)&&seen.add(t.vid));
+}
+async function itChart(cc){
+ const j=await fetch(`https://itunes.apple.com/${cc}/rss/topsongs/limit=50/json`).then(r=>r.json());
+ return[].concat(j.feed?.entry||[]).map(e=>{const pv=[].concat(e.link||[]).map(l=>l.attributes||{}).find(a=>a['im:assetType']==='preview')||{};
+  return{id:'i'+e.id.attributes['im:id'],kind:'preview',src:pv.href||'',title:e['im:name'].label,artist:e['im:artist'].label,album:e['im:collection']?.['im:name']?.label||'',art:([].concat(e['im:image']||[]).slice(-1)[0]?.label||'').replace(/\d+x\d+bb/,'600x600bb'),dur:(+pv['im:duration']||0)/1000}}).filter(t=>t.title);
 }
 async function itunes(q){
  const r=await fetch('https://itunes.apple.com/search?media=music&entity=song&limit=50&term='+encodeURIComponent(q));const j=await r.json();
@@ -516,11 +521,9 @@ async function itunes(q){
 }
 const OFFLINE='YouTube-поиск сейчас не отвечает — показываю 30-секундные превью из iTunes. Попробуй ещё раз через минуту.';
 async function loadHome(){
- const r=await Promise.allSettled([ytFind('хиты 2026','songs'),ytFind('top hits 2026','songs')]);
- const seen=new Set(),A=r[0].value||[],B=r[1].value||[],mixd=[];
- for(let i=0;i<Math.max(A.length,B.length);i++)for(const t of[A[i],B[i]])if(t&&!seen.has(t.vid)){seen.add(t.vid);mixd.push(t)}
- S.lists.home=mixd;S.homeSrc='yt';S.homeErr='';
- if(!mixd.length){try{S.lists.home=await itunes('top hits 2026');S.homeSrc='it';S.homeErr=OFFLINE}catch{S.homeErr='Нет связи — проверь интернет.'}}
+ S.homeErr='';
+ try{S.lists.home=await itChart('ua');S.homeSrc='chart'}catch{}
+ if(!S.lists.home.length){try{S.lists.home=await ytFind('хиты 2026','songs');S.homeSrc='yt'}catch{S.homeErr='Нет связи — проверь интернет.'}}
  render();
 }
 async function doSearch(){
@@ -546,7 +549,7 @@ $('files').addEventListener('change',e=>{
 });
 
 /* ================= VIEWS ================= */
-const VIEW={home:['Плейлист','В тренде'],search:['Поиск',''],local:['Раздел','Моя коллекция'],likes:['Плейлист','Избранное'],playlists:['Раздел','Плейлисты'],recent:['Раздел','Недавние'],queue:['Сейчас','Очередь'],settings:['Раздел','Настройки']};
+const VIEW={home:['Чарт','В тренде'],search:['Поиск',''],local:['Раздел','Моя коллекция'],likes:['Плейлист','Избранное'],playlists:['Раздел','Плейлисты'],recent:['Раздел','Недавние'],queue:['Сейчас','Очередь'],settings:['Раздел','Настройки']};
 function navOn(){$$('.nav[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===S.view||(S.view.startsWith('pl:')&&b.dataset.v==='playlists')))}
 function setView(v){S.view=v;navOn();if(v==='search')$('q').focus();render()}
 $$('[data-v]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.v)));
@@ -567,7 +570,7 @@ function render(){
  $('delPl').hidden=!pl;$('seg').hidden=S.view!=='search';$$('#seg [data-st]').forEach(b=>b.classList.toggle('on',b.dataset.st===S.sType));$('playAll').style.display=$('shuffleAll').style.display=noTracks?'none':'';
  $('tracks').querySelector('.cols').style.display=noTracks?'none':'';
  const L=cur();
- const subs={home:S.homeSrc==='yt'?'Свежие хиты — полные треки с YouTube':'Подборка хитов',search:S.searching?'Ищу…':S.lastQ?`Найдено: ${L.length} ${S.src==='yt'?(S.sType==='clips'?'клипов':'треков'):'превью'}`:'Любой трек или клип любого артиста',local:`${L.length} файлов с компьютера — живут до перезагрузки страницы`,likes:`${L.length} треков`,playlists:`${S.pls.length} плейлистов`,recent:'Последние 50 прослушанных',queue:`${L.length} в очереди`};
+ const subs={home:S.homeSrc==='chart'?'Топ-50 Украины — нажми, и трек заиграет целиком':'Свежие хиты',search:S.searching?'Ищу…':S.lastQ?`Найдено: ${L.length} ${S.src==='yt'?(S.sType==='clips'?'клипов':'треков'):'превью'}`:'Любой трек или клип любого артиста',local:`${L.length} файлов с компьютера — живут до перезагрузки страницы`,likes:`${L.length} треков`,playlists:`${S.pls.length} плейлистов`,recent:'Последние 50 прослушанных',queue:`${L.length} в очереди`};
  $('sub').textContent=subs[S.view]??`${L.length} треков`;
  if(S.view==='playlists'){
   $('list').innerHTML=`<div class="row" data-newpl><span class="num">${I.plus}</span><div class="tt"><b>Новый плейлист</b></div></div>`+S.pls.map(p=>`<div class="row" data-pl="${p.id}"><span class="num"></span><div class="tt"><div class="thumb" style='background-image:${esc(p.tracks[0]?artCss(p.tracks[0]):'none')}'></div><div class="ti">${esc(p.name)}</div></div><span class="ar2">${p.tracks.length} треков</span></div>`).join('');return;
