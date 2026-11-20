@@ -794,11 +794,30 @@ function ytLoad(vid){
  ytp=new YT.Player('yt',{width:'100%',height:'100%',videoId:vid,playerVars:{autoplay:1,playsinline:1,rel:0,origin:location.origin},
   events:{onReady:ev=>{ev.target.setVolume(volume);ev.target.playVideo()},
    onStateChange:ev=>{if(isYT()&&ev.data===0)ended()},
-   onError:()=>{if(!isYT())return;$('nAr').textContent='Видео нельзя встроить — пропускаю…';setTimeout(()=>step(1),1500)}}});
+   onError:ev=>{if(isYT())ytFallback(ev.data)}}});
+}
+// Видео с ограничением 18+ / запретом встраивания: ищем другую версию той же песни
+const badVids=new Set(store.get('badVids',[])),ytalt=store.get('ytalt',{});
+const words=x=>clean(x).toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').split(' ').filter(w=>w.length>1);
+function sameSong(a,t){const A=new Set(words(a.title)),B=words(t.title);if(!B.length)return false;const hit=B.filter(w=>A.has(w)).length/B.length;
+ const ar=words(t.artist),art=words(a.artist+' '+a.title);return hit>=.6&&(!ar.length||ar.some(w=>art.includes(w)))}
+let fbBusy=null;
+async function ytFallback(code){
+ const t=S.cur;if(!t||fbBusy===t)return;fbBusy=t;
+ const bad=curVid();if(bad){badVids.add(bad);store.set('badVids',[...badVids].slice(-400))}
+ t.fbTries=(t.fbTries||0)+1;
+ $('nAr').textContent='Видео с ограничением — ищу другую версию…';
+ let alt=null;
+ if(t.fbTries<=3){try{const q=clean(t.artist+' '+t.title);const r=await Promise.allSettled([ytFind(q,'songs'),ytFind(q,'clips'),ytFind(q+' lyrics','clips')]);
+  alt=r.flatMap(x=>x.value||[]).find(x=>!badVids.has(x.vid)&&sameSong(x,t))||null}catch{}}
+ fbBusy=null;if(S.cur!==t)return;
+ if(alt){if(t.kind==='yt')ytalt[t.vid]=alt.vid;else S.ytmap[t.id]=alt.vid;store.set('ytalt',ytalt);store.set('ytmap',S.ytmap);
+  $('nAr').textContent=t.artist;toast('У этого видео ограничение — включил другую версию песни');ytLoad(alt.vid);clipReset();setTimeout(()=>{if(S.cur===t)loadLyrics(t)},1500);return}
+ $('nAr').textContent='Другой версии не нашлось — пропускаю…';toast('Эту песню YouTube не даёт играть вне своего сайта');setTimeout(()=>{if(S.cur===t)step(1)},1800);
 }
 async function resolveYT(t){
- if(S.ytmap[t.id])return S.ytmap[t.id];
- const v=(await ytFind(t.artist+' '+t.title,'songs'))[0]?.vid;if(v){S.ytmap[t.id]=v;store.set('ytmap',S.ytmap)}return v;
+ if(S.ytmap[t.id]&&!badVids.has(S.ytmap[t.id]))return S.ytmap[t.id];
+ const v=(await ytFind(t.artist+' '+t.title,'songs')).find(x=>!badVids.has(x.vid))?.vid;if(v){S.ytmap[t.id]=v;store.set('ytmap',S.ytmap)}return v;
 }
 
 /* ================= PLAYBACK ================= */
@@ -810,7 +829,7 @@ function seek(t){if(isYT())ytp?.seekTo?.(Math.max(0,t),true);else aud.currentTim
 async function play(t){
  if(!t)return;aud.pause();ytp?.pauseVideo?.();
  S.cur=t;t.viaYT=false;
- let vid=t.kind==='yt'?t.vid:null;
+ let vid=t.kind==='yt'?(ytalt[t.vid]||t.vid):null;
  if(t.kind==='preview'){try{vid=await resolveYT(t);if(vid)t.viaYT=true}catch{}}
  if(S.cur!==t)return;
  document.body.classList.toggle('yt',!!vid);
@@ -1212,7 +1231,7 @@ function beatTick(){
 /* ================= KARAOKE: clip mode ================= */
 S.lyrMode=store.get('lyrMode','cover');
 const clip={p:null,ready:false,vid:undefined,for:null,last:0};
-function curVid(){const t=S.cur;return!t?null:t.kind==='yt'?t.vid:S.ytmap[t.id]}
+function curVid(){const t=S.cur;return!t?null:t.kind==='yt'?(ytalt[t.vid]||t.vid):S.ytmap[t.id]}
 function clipReset(){clip.for=null;clip.vid=undefined;if(clip.ready)try{clip.p.pauseVideo()}catch{}}
 async function clipEnsure(){
  const t=S.cur;if(!t||!isYT()||clip.for===t.id)return;
@@ -1220,11 +1239,11 @@ async function clipEnsure(){
  let v=t.clip?null:t.clipVid;
  if(v===undefined){try{const r=await ytFind(clean(t.artist+' '+t.title),'clips');v=r[0]?.vid||null}catch{v=null}t.clipVid=v}
  if(S.cur!==t||clip.for!==t.id)return;
- if(!v||v===curVid()){clip.vid=null;return}
+ if(!v||v===curVid()||badVids.has(v)){clip.vid=null;return}
  clip.vid=v;
  if(!ytReady){clip.vid=null;return}
  if(!clip.p){clip.ready=false;clip.p=new YT.Player('clipYT',{width:'100%',height:'100%',videoId:v,playerVars:{autoplay:1,mute:1,controls:0,disablekb:1,playsinline:1,rel:0,fs:0,iv_load_policy:3,origin:location.origin},
-   events:{onReady:e=>{e.target.mute();clip.ready=true;e.target.seekTo(ctime(),true)},onError:()=>{clip.vid=null}}})}
+   events:{onReady:e=>{e.target.mute();clip.ready=true;e.target.seekTo(ctime(),true)},onError:()=>{if(clip.vid){badVids.add(clip.vid);store.set('badVids',[...badVids].slice(-400))}clip.vid=null}}})}
  else{clip.p.loadVideoById({videoId:v,startSeconds:ctime()});clip.p.mute()}
 }
 function clipSync(now){
