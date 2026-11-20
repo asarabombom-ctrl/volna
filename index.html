@@ -431,6 +431,19 @@ html.pip #pipArt{display:flex;position:fixed;inset:0;z-index:9998;background:#00
 .lstage:hover .lfx,.lfx:focus-within{opacity:1}
 .lfx button{font:700 12px Manrope,system-ui,sans-serif;padding:6px 11px;border-radius:999px;color:rgba(255,255,255,.8);background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.12)}
 .lfx button.on{background:#fff;color:#111}
+
+/* --- radio + karaoke controls --- */
+.ib.on[data-radio],.ib.on[data-shuf],.ib.on[data-rep]{color:var(--acc2,var(--acc))}
+.ib[data-radio].on{position:relative}
+.ib[data-radio].on::after{content:"";position:absolute;right:6px;top:6px;width:6px;height:6px;border-radius:50%;background:var(--acc)}
+.bctl .bx{display:none}
+@media(min-width:1151px){
+ html.lyron .bar{grid-template-columns:minmax(0,1fr) auto minmax(0,1.6fr) minmax(0,1fr)}
+ html.lyron .bctl{display:flex;gap:6px}
+ html.lyron .bctl .bx{display:inline-flex}
+}
+@media(min-width:761px) and (max-width:1150px){html.lyron .bctl .bx{display:inline-flex}}
+.npf{flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -498,7 +511,7 @@ html.pip #pipArt{display:flex;position:fixed;inset:0;z-index:9998;background:#00
         <button class="ib" data-next title="Вперёд"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
         <button class="ib" data-rep title="Повтор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 01-3 3H3"/></svg></button>
       </div>
-      <div class="npf"><button class="pill ghost" id="npLike"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.5-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.5-9 9-9 9z"/></svg><span>В избранное</span></button><button class="pill ghost" id="npAdd">+ Плейлист</button><button class="ib ytm" data-ytm title="Открыть в YouTube Music"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l6-3.5z" fill="currentColor" stroke="none"/></svg></button></div>
+      <div class="npf"><button class="pill ghost" id="npLike"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.5-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.5-9 9-9 9z"/></svg><span>В избранное</span></button><button class="pill ghost" id="npAdd">+ Плейлист</button><button class="ib ytm" data-radio title="Радио: бесконечно похожие песни"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M8.5 15.5a5 5 0 010-7M15.5 8.5a5 5 0 010 7M5.6 18.4a9 9 0 010-12.8M18.4 5.6a9 9 0 010 12.8"/></svg></button><button class="ib ytm" data-ytm title="Открыть в YouTube Music"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l6-3.5z" fill="currentColor" stroke="none"/></svg></button></div>
     </div>
     <div class="lyrCard glass" id="lyrCard" title="Открыть текст">
       <div class="h">Текст песни <span>развернуть ↗</span></div>
@@ -511,9 +524,12 @@ html.pip #pipArt{display:flex;position:fixed;inset:0;z-index:9998;background:#00
     <div class="mini"><div class="thumb" id="mArt"></div><div style="min-width:0"><div class="ti" id="mTi">—</div><div class="ar" id="mAr"></div></div></div>
     <button class="ib m-only" id="bLike" title="В избранное"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.5-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.5-9 9-9 9z"/></svg></button>
     <div class="bctl">
+      <button class="ib bx" data-shuf title="Перемешать"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
       <button class="ib" data-prev title="Назад"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
       <button class="play" data-pp><svg viewBox="0 0 24 24" fill="currentColor" class="ppI"><path d="M7 4v16l13-8z"/></svg></button>
       <button class="ib" data-next title="Вперёд"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+      <button class="ib bx" data-rep title="Повтор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 01-3 3H3"/></svg></button>
+      <button class="ib bx" data-radio title="Радио: бесконечно похожие песни"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M8.5 15.5a5 5 0 010-7M15.5 8.5a5 5 0 010 7M5.6 18.4a9 9 0 010-12.8M18.4 5.6a9 9 0 010 12.8"/></svg></button>
     </div>
     <div class="bprog"><span id="c1">0:00</span><input type="range" id="pos" min="0" max="1000" value="0" aria-label="Позиция"><span id="t1">0:00</span></div>
     <div class="bvol">
@@ -549,7 +565,7 @@ html.pip #pipArt{display:flex;position:fixed;inset:0;z-index:9998;background:#00
     <div id="lyrBody"><p class="lmsg">Включи трек — и текст побежит в такт.</p></div>
   </div>
   <div class="recp" id="recP" hidden></div>
-  <div class="lf"><input type="range" id="pos4" min="0" max="1000" value="0" aria-label="Позиция"><div class="lf-c"><span id="c4">0:00</span><div><button class="ib" data-prev title="Назад"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button><button class="play" data-pp title="Играть/пауза"><svg viewBox="0 0 24 24" fill="currentColor" class="ppI"><path d="M7 4v16l13-8z"/></svg></button><button class="ib" data-next title="Вперёд"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button></div><span id="t4">0:00</span></div></div>
+  <div class="lf"><input type="range" id="pos4" min="0" max="1000" value="0" aria-label="Позиция"><div class="lf-c"><span id="c4">0:00</span><div><button class="ib" data-prev title="Назад"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button><button class="play" data-pp title="Играть/пауза"><svg viewBox="0 0 24 24" fill="currentColor" class="ppI"><path d="M7 4v16l13-8z"/></svg></button><button class="ib" data-next title="Вперёд"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button><button class="ib" data-radio title="Радио"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M8.5 15.5a5 5 0 010-7M15.5 8.5a5 5 0 010 7M5.6 18.4a9 9 0 010-12.8M18.4 5.6a9 9 0 010 12.8"/></svg></button></div><span id="t4">0:00</span></div></div>
 </div>
 
 <section id="sheet" aria-label="Сейчас играет">
@@ -562,7 +578,7 @@ html.pip #pipArt{display:flex;position:fixed;inset:0;z-index:9998;background:#00
     </div>
     <div class="sh-art" id="shArt"></div>
     <div class="ytslot" id="slotSheet"></div>
-    <div class="sh-meta"><div><div class="ti" id="sTi">—</div><div class="ar" id="sAr"></div></div><button class="ib ytm" data-ytm title="Открыть в YouTube Music" style="color:var(--ink)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l6-3.5z" fill="currentColor" stroke="none"/></svg></button><button class="ib" id="sLike" title="В избранное"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.5-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.5-9 9-9 9z"/></svg></button></div>
+    <div class="sh-meta"><div><div class="ti" id="sTi">—</div><div class="ar" id="sAr"></div></div><button class="ib ytm" data-radio title="Радио: бесконечно похожие песни"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M8.5 15.5a5 5 0 010-7M15.5 8.5a5 5 0 010 7M5.6 18.4a9 9 0 010-12.8M18.4 5.6a9 9 0 010 12.8"/></svg></button><button class="ib ytm" data-ytm title="Открыть в YouTube Music" style="color:var(--ink)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l6-3.5z" fill="currentColor" stroke="none"/></svg></button><button class="ib" id="sLike" title="В избранное"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.5-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.5-9 9-9 9z"/></svg></button></div>
     <div><input type="range" id="pos3" min="0" max="1000" value="0" aria-label="Позиция"><div class="prog"><span id="c3">0:00</span><span id="t3" style="text-align:right">0:00</span></div></div>
     <div class="ctr big"><button class="ib" data-shuf title="Перемешать"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button><button class="ib" data-prev title="Назад"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button><button class="play" data-pp title="Играть/пауза"><svg viewBox="0 0 24 24" fill="currentColor" class="ppI"><path d="M7 4v16l13-8z"/></svg></button><button class="ib" data-next title="Вперёд"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button><button class="ib" data-rep title="Повтор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 01-3 3H3"/></svg></button></div>
     <div class="sh-row"><button class="pill ghost" data-lyr><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg>Текст</button><button class="pill ghost" data-v="queue" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h12M4 12h12M4 18h8M18 14v6l4-3z"/></svg>Очередь</button></div>
@@ -896,10 +912,10 @@ async function play(t){
  document.title=t.title+' — Волна';
  if('mediaSession'in navigator){try{navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist,artwork:t.art?[{src:t.art,sizes:'512x512'}]:[]})}catch{}}
  if(t.kind!=='local'){const R=S.lists.recent.filter(x=>x.id!==t.id);R.unshift(strip(t));S.lists.recent=R.slice(0,50);store.set('recent',S.lists.recent)}
- coverColor(t);likeBtn();render();loadLyrics(t);loadBpm(t);clipReset();
+ coverColor(t);likeBtn();render();loadLyrics(t);loadBpm(t);clipReset();if(S.radio&&S.qi>=S.queue.length-3)radioExtend();
 }
 function ended(){if(COV.st==='rec'){recStop();return}if(S.repeat){seek(0);isYT()?ytp.playVideo():aud.play()}else step(1)}
-function step(d){if(!S.queue.length)return;if(S.shuffle&&d>0)S.qi=Math.random()*S.queue.length|0;else S.qi=(S.qi+d+S.queue.length)%S.queue.length;play(S.queue[S.qi])}
+function step(d){if(!S.queue.length)return;if(S.radio&&d>0&&!S.shuffle&&S.qi>=S.queue.length-1){radioExtend(true);return}if(S.shuffle&&d>0)S.qi=Math.random()*S.queue.length|0;else S.qi=(S.qi+d+S.queue.length)%S.queue.length;play(S.queue[S.qi])}
 function toggle(){if(!S.cur){startList(false);return}if(isYT())paused()?ytp?.playVideo?.():ytp?.pauseVideo?.();else aud.paused?aud.play().catch(()=>{}):aud.pause()}
 $$('[data-pp]').forEach(b=>b.onclick=toggle);$$('[data-next]').forEach(b=>b.onclick=()=>step(1));$$('[data-prev]').forEach(b=>b.onclick=()=>ctime()>3?seek(0):step(-1));
 $$('[data-shuf]').forEach(b=>b.onclick=()=>{S.shuffle=!S.shuffle;$$('[data-shuf]').forEach(x=>x.classList.toggle('on',S.shuffle))});
@@ -1562,6 +1578,50 @@ let coverFx=store.get('coverFx','pulse');
 function fxUI(){stageEl.dataset.fx=coverFx;$$('#lFx button').forEach(b=>b.classList.toggle('on',b.dataset.fx===coverFx))}
 $('lFx').onclick=e=>{const b=e.target.closest('[data-fx]');if(!b)return;coverFx=b.dataset.fx;store.set('coverFx',coverFx);fxUI()};
 fxUI();
+
+
+/* ================= RADIO: бесконечно похожие песни ================= */
+S.radio=store.get('radio',false);
+const radioSeen=new Set(),radioKeys=new Set();let radioBusy=null;
+const RADIO_BAD=/\b(mix|playlist|full album|nonstop|non-stop|1 hour|hour|сборник|подборка|все песни|лучшие песни|альбом целиком)\b/i;
+function radioMark(t){if(t.vid)radioSeen.add(t.vid);radioKeys.add(tkey(t))}
+async function radioFrom(seed){
+ let v=seed.kind==='yt'?(ytalt[seed.vid]||seed.vid):S.ytmap[seed.id];
+ if(!v&&seed.kind!=='local'){try{v=await resolveYT(seed)}catch{}}
+ const pick=items=>{const out=[];for(const it of items){if(it.type!=='stream'||it.isShort||!(it.duration>60&&it.duration<720)||RADIO_BAD.test(it.title||''))continue;
+   const t=normP(it,!/ - Topic$/.test(it.uploaderName||''));if(!t||radioSeen.has(t.vid)||badVids.has(t.vid)||radioKeys.has(tkey(t)))continue;radioMark(t);out.push(t)}return out};
+ let out=[];
+ if(v){try{const j=await piped('/streams/'+v);out=pick(j.relatedStreams||[])}catch{}}
+ if(out.length<3&&seed.artist){try{const j=await piped(sPath(seed.artist+' песни','music_songs'));out.push(...pick(j.items||[]))}catch{}}
+ // чтобы радио не застревало на одном артисте
+ const by={};return out.filter(t=>(by[t.artist]=(by[t.artist]||0)+1)<=3).slice(0,12);
+}
+async function radioExtend(advance){
+ if(radioBusy){if(advance)radioBusy.then(()=>step(1));return}
+ const seed=S.queue[S.queue.length-1]||S.cur;if(!seed)return;
+ S.queue.forEach(radioMark);
+ radioBusy=radioFrom(seed).then(more=>{
+  if(more.length){S.queue.push(...more);if(S.view==='queue')render()}
+  else if(advance)toast('Радио не нашло похожих песен — попробуй с другого трека');
+ }).finally(()=>{radioBusy=null});
+ await radioBusy;
+ if(advance&&S.qi<S.queue.length-1){S.qi++;play(S.queue[S.qi])}
+}
+function radioUI(){$$('[data-radio]').forEach(b=>{b.classList.toggle('on',!!S.radio);b.title=S.radio?'Радио включено — после списка играют похожие песни':'Радио: бесконечно похожие песни'})}
+async function radioToggle(){
+ S.radio=!S.radio;store.set('radio',S.radio);radioUI();
+ if(!S.radio){toast('Радио выключено');return}
+ if(!S.cur){toast('Радио включено — включи любую песню');return}
+ // после текущей песни — похожие на неё
+ S.queue=S.queue.slice(0,S.qi+1);if(!S.queue.length){S.queue=[S.cur];S.qi=0}
+ toast(`Радио по «${S.cur.title}» — подбираю похожие…`);
+ await radioExtend();
+ if(S.queue.length>S.qi+1)toast(`В очереди ${ntr(S.queue.length-S.qi-1)} — дальше подгружу сам`);
+}
+$$('[data-radio]').forEach(b=>b.onclick=e=>{e.stopPropagation();radioToggle()});
+radioUI();
+// кнопки управления внизу, пока открыт текст на весь экран
+new MutationObserver(()=>document.documentElement.classList.toggle('lyron',layers.lyr.classList.contains('open'))).observe(layers.lyr,{attributes:true,attributeFilter:['class']});
 
 /* ================= START ================= */
 applyTheme(theme);render();loadHome();requestAnimationFrame(tick);fbInit();
