@@ -795,14 +795,16 @@ let seeking=false;
 ['pos','pos2','pos3','pos4'].forEach(id=>{$(id).addEventListener('input',e=>{seeking=true;setP(e.target,e.target.value/10)});$(id).addEventListener('change',e=>{const d=cdur();if(d)seek(e.target.value/1000*d);seeking=false})});
 let lastP=null;
 function uiState(){const p=paused();if(p===lastP)return;lastP=p;if('mediaSession'in navigator)try{navigator.mediaSession.playbackState=p?'paused':'playing'}catch{}$$('.ppI').forEach(s=>s.innerHTML=p?'<path d="M7 4v16l13-8z"/>':'<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>');if(S.view!=='settings')render()}
-let lastUi=0;
+let lastUi=0;const sm={raw:-1,v:0,w:0};
+// YouTube отдаёт время рывками — сглаживаем по часам браузера
+function smoothT(now){const t=ctime();if(paused())return t;if(t!==sm.raw){sm.raw=t;sm.v=t;sm.w=now}return sm.v+Math.min(.5,(now-sm.w)/1000)}
 function tick(now){
  try{
   if(S.cur){
    const t=ctime();
    if(now-lastUi>200){lastUi=now;const d=cdur();for(const k of[1,2,3,4]){$('c'+k).textContent=fmt(t);$('t'+k).textContent=fmt(d)}
     if(!seeking&&d){const p=t/d*1000;for(const id of['pos','pos2','pos3','pos4']){$(id).value=p;setP($(id),p/10)}}$('barLine').style.width=(d?t/d*100:0)+'%';uiState()}
-   syncLyrics(t);
+   syncLyrics(smoothT(now));
   }
   drawViz();beatTick(now);clipSync(now);placeYT();
  }catch(e){console.error(e)}
@@ -1120,7 +1122,7 @@ function beatTick(){
  if(S.cur&&!paused()){
   if(S.cur.kind==='local'&&an){an.getByteFrequencyData(data);let x=0;for(let i=1;i<5;i++)x+=data[i];x/=4*255;beat.pk=Math.max(beat.pk*.997,x,.15);const y=Math.max(0,(x-beat.pk*.62)/(beat.pk*.38));v=y*y}
   else{
-   const t=ctime(),w=wordStart(t);
+   const t=smoothT(performance.now()),w=wordStart(t);
    if(w!=null&&w!==beat.lastW){beat.lastW=w;beat.kick=t;if(beat.bpm){const P=60/beat.bpm;let e=((w-beat.off)%P+P)%P;if(e>P/2)e-=P;beat.off+=e*.3}}
    if(beat.bpm){const P=60/beat.bpm,ph=(((t-beat.off)%P)+P)%P/P;v=Math.exp(-ph*5.5)}
    else if(beat.kick!=null)v=Math.exp(-Math.max(0,t-beat.kick)*6)*.8;
