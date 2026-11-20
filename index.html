@@ -811,6 +811,7 @@ function placeYT(){
 
 /* ================= START ================= */
 applyTheme(theme);render();loadHome();requestAnimationFrame(tick);
+window.volnaDebug=()=>({cur:S.cur&&{kind:S.cur.kind,viaYT:S.cur.viaYT},isYT:isYT(),paused:paused(),state:ytp?.getPlayerState?.(),lastP});
 }
 </script>
 </body>
