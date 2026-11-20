@@ -408,6 +408,15 @@ button:active{transform:scale(.96)}
 .cp-l p.on{opacity:1;font-size:22px;--f:0%;color:transparent;-webkit-background-clip:text;background-clip:text;background-image:linear-gradient(90deg,#fff var(--f),rgba(255,255,255,.4) var(--f))}
 .cp-l .cp-n{opacity:.6;font-size:14px;font-weight:600}
 @media(max-width:760px){#singBtn span{display:none}#singBtn{padding:0 12px}.recp{bottom:calc(150px + env(safe-area-inset-bottom))}}
+
+/* --- YT Music buttons, PiP --- */
+.npf .ytm{flex:none;width:40px;height:40px}
+.ib.ytm svg{width:20px;height:20px}
+#pipArt{display:none}
+html.pip .app,html.pip #lyrFull,html.pip #sheet,html.pip #modal,html.pip #toast,html.pip .tabs{visibility:hidden!important}
+html.pip #pipArt{display:flex;position:fixed;inset:0;z-index:9998;background:#000;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+#pipArt .pa-c{width:62vmin;height:62vmin;border-radius:10px;background:#222 center/cover}
+#pipArt b{font:700 11px Manrope,system-ui,sans-serif;max-width:92vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
 </style>
 </head>
 <body>
@@ -448,6 +457,7 @@ button:active{transform:scale(.96)}
           <div class="acts">
             <button class="pill acc" id="playAll"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"/></svg>Слушать</button>
             <button class="ib" id="shuffleAll" title="Перемешать и слушать"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
+            <button class="ib" id="ytAll" title="Открыть этот список в YouTube (до 50 песен)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l6-3.5z" fill="currentColor" stroke="none"/></svg></button>
             <div class="seg" id="seg" hidden><button data-st="songs">Треки</button><button data-st="clips">Клипы</button></div>
             <button class="ib" id="delPl" title="Удалить плейлист" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button>
           </div>
@@ -474,7 +484,7 @@ button:active{transform:scale(.96)}
         <button class="ib" data-next title="Вперёд"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
         <button class="ib" data-rep title="Повтор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 01-3 3H3"/></svg></button>
       </div>
-      <div class="npf"><button class="pill ghost" id="npLike"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.5-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.5-9 9-9 9z"/></svg><span>В избранное</span></button><button class="pill ghost" id="npAdd">+ Плейлист</button></div>
+      <div class="npf"><button class="pill ghost" id="npLike"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.5-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.5-9 9-9 9z"/></svg><span>В избранное</span></button><button class="pill ghost" id="npAdd">+ Плейлист</button><button class="ib ytm" data-ytm title="Открыть в YouTube Music"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l6-3.5z" fill="currentColor" stroke="none"/></svg></button></div>
     </div>
     <div class="lyrCard glass" id="lyrCard" title="Открыть текст">
       <div class="h">Текст песни <span>развернуть ↗</span></div>
@@ -538,7 +548,7 @@ button:active{transform:scale(.96)}
     </div>
     <div class="sh-art" id="shArt"></div>
     <div class="ytslot" id="slotSheet"></div>
-    <div class="sh-meta"><div><div class="ti" id="sTi">—</div><div class="ar" id="sAr"></div></div><button class="ib" id="sLike" title="В избранное"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.5-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.5-9 9-9 9z"/></svg></button></div>
+    <div class="sh-meta"><div><div class="ti" id="sTi">—</div><div class="ar" id="sAr"></div></div><button class="ib ytm" data-ytm title="Открыть в YouTube Music" style="color:var(--ink)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l6-3.5z" fill="currentColor" stroke="none"/></svg></button><button class="ib" id="sLike" title="В избранное"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.5-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.5-9 9-9 9z"/></svg></button></div>
     <div><input type="range" id="pos3" min="0" max="1000" value="0" aria-label="Позиция"><div class="prog"><span id="c3">0:00</span><span id="t3" style="text-align:right">0:00</span></div></div>
     <div class="ctr big"><button class="ib" data-shuf title="Перемешать"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button><button class="ib" data-prev title="Назад"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button><button class="play" data-pp title="Играть/пауза"><svg viewBox="0 0 24 24" fill="currentColor" class="ppI"><path d="M7 4v16l13-8z"/></svg></button><button class="ib" data-next title="Вперёд"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button><button class="ib" data-rep title="Повтор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 01-3 3H3"/></svg></button></div>
     <div class="sh-row"><button class="pill ghost" data-lyr><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg>Текст</button><button class="pill ghost" data-v="queue" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h12M4 12h12M4 18h8M18 14v6l4-3z"/></svg>Очередь</button></div>
@@ -547,6 +557,7 @@ button:active{transform:scale(.96)}
 </section>
 <div class="ytbox" id="ytbox"><div id="yt"></div></div>
 <div class="ytbox" id="clipbox"><div id="clipYT"></div></div>
+<div id="pipArt"><div class="pa-c" id="pipCov"></div><b id="pipTi"></b></div>
 
 <div id="toast" role="status" aria-live="polite"></div><div id="modal"></div>
 <div class="pop glass" id="themePop"></div>
@@ -767,7 +778,7 @@ function render(){
  banner();shelves();
  const pl=plOf(S.view),v=VIEW[S.view]||['Плейлист',pl?.name||''],noTracks=['settings','playlists','covers'].includes(S.view);
  $('kick').textContent=v[0];$('title').textContent=S.view==='search'?(S.lastQ?'«'+S.lastQ+'»':'Поиск'):v[1];
- $('delPl').hidden=!pl;$('seg').hidden=S.view!=='search';$$('#seg [data-st]').forEach(b=>b.classList.toggle('on',b.dataset.st===S.sType));$('playAll').style.display=$('shuffleAll').style.display=noTracks?'none':'';
+ $('delPl').hidden=!pl;$('seg').hidden=S.view!=='search';$$('#seg [data-st]').forEach(b=>b.classList.toggle('on',b.dataset.st===S.sType));$('playAll').style.display=$('shuffleAll').style.display=$('ytAll').style.display=noTracks?'none':'';
  $('tracks').querySelector('.cols').style.display=noTracks?'none':'';
  const L=cur();
  const subs={home:S.homeSrc==='chart'?'Топ-50 Украины — нажми, и трек заиграет целиком':'Свежие хиты',search:S.searching?'Ищу…':S.lastQ?`Найдено: ${L.length} ${S.src==='yt'?(S.sType==='clips'?'клипов':'треков'):'превью'}`:'Любой трек или клип любого артиста',local:`${L.length} файлов с компьютера — живут до перезагрузки страницы`,likes:ntr(L.length),playlists:`${S.pls.length} плейлистов`,recent:'Последние 50 прослушанных',queue:`${L.length} в очереди`};
@@ -866,7 +877,7 @@ async function play(t){
  document.body.classList.toggle('yt',!!vid);
  if(vid)ytLoad(vid);else{aud.src=t.src;if(t.kind==='local')initAudio();aud.play().catch(()=>{$('nAr').textContent='Не удалось воспроизвести'})}
  const bg=artCss(t);
- $('bigArt').innerHTML='';[$('bigArt'),$('mArt'),$('lArt'),$('shArt'),$('shBg'),$('lCov'),$('lBg')].forEach(el=>el.style.backgroundImage=bg);$('shFrom').textContent=$('title').textContent;
+ $('bigArt').innerHTML='';[$('bigArt'),$('mArt'),$('lArt'),$('shArt'),$('shBg'),$('lCov'),$('lBg'),$('pipCov')].forEach(el=>el.style.backgroundImage=bg);$('pipTi').textContent=t.title+' — '+t.artist;$('shFrom').textContent=$('title').textContent;
  for(const id of['nTi','mTi','lTi','sTi'])$(id).textContent=t.title;for(const id of['nAr','mAr','lAr','sAr'])$(id).textContent=t.artist;
  document.title=t.title+' — Волна';
  if('mediaSession'in navigator){try{navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist,artwork:t.art?[{src:t.art,sizes:'512x512'}]:[]})}catch{}}
@@ -887,7 +898,7 @@ $('vol').oninput=e=>{volume=+e.target.value;aud.volume=volume/100;ytp?.setVolume
 let seeking=false;
 ['pos','pos2','pos3','pos4'].forEach(id=>{$(id).addEventListener('input',e=>{seeking=true;setP(e.target,e.target.value/10)});$(id).addEventListener('change',e=>{const d=cdur();if(d)seek(e.target.value/1000*d);seeking=false})});
 let lastP=null;
-function uiState(){const p=paused();if(p===lastP)return;lastP=p;if('mediaSession'in navigator)try{navigator.mediaSession.playbackState=p?'paused':'playing'}catch{}$$('.ppI').forEach(s=>s.innerHTML=p?'<path d="M7 4v16l13-8z"/>':'<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>');if(S.view!=='settings')render()}
+function uiState(){const p=paused();if(p===lastP)return;lastP=p;if('mediaSession'in navigator)try{navigator.mediaSession.playbackState=p?'paused':'playing'}catch{}try{window.VolnaAndroid?.setPlaying?.(!p)}catch{}$$('.ppI').forEach(s=>s.innerHTML=p?'<path d="M7 4v16l13-8z"/>':'<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>');if(S.view!=='settings')render()}
 const perf={lite:store.get('lite',null),acc:0,n:0,slow:0,last:0};
 function setLite(on,quiet){perf.lite=on;document.documentElement.classList.toggle('lite',!!on);if(!quiet)store.set('lite',on)}
 setLite(!!perf.lite,true);
@@ -1206,6 +1217,7 @@ const radC=new Map();let lyrZc=0,lyrZw=0;
 function radOf(el){let v=radC.get(el);if(v===undefined){v=getComputedStyle(el).borderRadius;radC.set(el,v)}return v}
 function lyrZ(){if(innerWidth!==lyrZw){lyrZw=innerWidth;lyrZc=(+getComputedStyle(layers.lyr).zIndex||20)-1;radC.clear()}return lyrZc}
 function placeYT(){if(document.hidden)return;
+ if(document.documentElement.classList.contains('pip')){hideBox(clipb);if(isYT()){ytb.classList.add('clipbg');putBox(ytb,{left:0,top:0,width:innerWidth,height:innerHeight},9999,'0','')}else hideBox(ytb);return}
  const L=layers.lyr,lyrOpen=L.classList.contains('open'),clipOn=lyrOpen&&S.lyrMode==='clip'&&isYT();
  let bgBox=null;
  if(clipOn){if(clip.vid&&clip.ready)bgBox=clipb;else if(clip.vid===null&&clip.for===S.cur?.id)bgBox=ytb}
@@ -1498,6 +1510,31 @@ async function coverPlayer(id,meta){
   raf=requestAnimationFrame(tick2)};tick2();
 }
 {const id=new URLSearchParams(location.search).get('cover');if(id)setTimeout(()=>coverPlayer(id),300)}
+
+
+/* ================= YouTube Music / YouTube + Android PiP ================= */
+function openOut(url,w){if(!paused())toggle();if(ENV.app||ENV.desk){location.href=url;return}if(w){w.location.href=url}else window.open(url,'_blank','noopener')}
+async function ytmOpen(){
+ const t=S.cur;if(!t){toast('Сначала включи песню');return}
+ if(t.kind==='local'){toast('Это твой файл — его нет на YouTube');return}
+ const w=ENV.app||ENV.desk?null:window.open('','_blank');
+ let v=curVid();if(!v){try{v=await resolveYT(t)}catch{}}
+ if(!v){w?.close();toast('Не нашёл эту песню на YouTube');return}
+ const at=Math.floor(ctime());openOut(`https://music.youtube.com/watch?v=${v}${at>5?'&t='+at:''}`,w);
+}
+async function ytListOpen(){
+ const L=cur().filter(t=>t.kind!=='local').slice(0,50);if(!L.length)return;
+ const w=ENV.app||ENV.desk?null:window.open('','_blank');toast('Собираю список для YouTube…');
+ const ids=new Array(L.length);let k=0;
+ await Promise.all(Array.from({length:6},async()=>{while(k<L.length){const i=k++,t=L[i];let v=t.kind==='yt'?(ytalt[t.vid]||t.vid):S.ytmap[t.id];if(!v){try{v=await resolveYT(t)}catch{}}ids[i]=v}}));
+ const ok=ids.filter(Boolean);if(!ok.length){w?.close();toast('Не нашёл эти песни на YouTube');return}
+ openOut('https://www.youtube.com/watch_videos?video_ids='+ok.join(','),w);
+}
+document.addEventListener('click',e=>{if(e.target.closest('[data-ytm]')){e.stopPropagation();ytmOpen()}},true);
+$('ytAll').onclick=()=>ytListOpen();
+// команды из уведомления/окна «картинка в картинке» приложения Android
+window.volnaCmd=c=>{if(c==='toggle')toggle();else if(c==='next')step(1);else if(c==='prev')ctime()>3?seek(0):step(-1);else if(c==='pause'&&!paused())toggle()};
+window.volnaPip=on=>{document.documentElement.classList.toggle('pip',!!on);placeYT()};
 
 /* ================= START ================= */
 applyTheme(theme);render();loadHome();requestAnimationFrame(tick);fbInit();

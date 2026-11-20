@@ -11,6 +11,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.Manifest;
+import android.app.PendingIntent;
+import android.app.PictureInPictureParams;
+import android.app.RemoteAction;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.IntentFilter;
+import android.content.res.Configuration;
+import android.graphics.drawable.Icon;
+import android.util.Rational;
+import java.util.ArrayList;
 import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.os.Environment;
@@ -37,6 +47,9 @@ public class MainActivity extends Activity {
     static final int FILE_REQ = 7;
     static final int MIC_REQ = 8;
     PermissionRequest pendingPerm;
+    static final String PIP_ACTION = "app.volna.player.PIP";
+    boolean playing = false;
+    BroadcastReceiver pipRcv;
 
     WebView web;
     FrameLayout root;
@@ -52,7 +65,7 @@ public class MainActivity extends Activity {
         root.setBackgroundColor(Color.parseColor("#0B0812"));
         // Отступы под статус-бар и навигацию (Android 15 рисует до краёв)
         root.setOnApplyWindowInsetsListener((v, insets) -> {
-            if (fullView == null) {
+            if (fullView == null && !inPip()) {
                 if (android.os.Build.VERSION.SDK_INT >= 30) {
                     android.graphics.Insets i = insets.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.ime());
                     v.setPadding(i.left, i.top, i.right, i.bottom);
@@ -153,6 +166,17 @@ public class MainActivity extends Activity {
             }
         });
 
+        // Кнопки в окне «картинка в картинке»
+        pipRcv = new BroadcastReceiver() {
+            @Override public void onReceive(Context c, Intent i) {
+                String cmd = i.getStringExtra("cmd");
+                if (cmd != null) web.evaluateJavascript("window.volnaCmd&&volnaCmd('" + cmd + "')", null);
+            }
+        };
+        IntentFilter f = new IntentFilter(PIP_ACTION);
+        if (android.os.Build.VERSION.SDK_INT >= 33) registerReceiver(pipRcv, f, Context.RECEIVER_NOT_EXPORTED);
+        else registerReceiver(pipRcv, f);
+
         if (state != null) web.restoreState(state);
         else web.loadUrl(HOME);
     }
@@ -216,8 +240,52 @@ public class MainActivity extends Activity {
         }
     }
 
+    PendingIntent pipIntent(String cmd, int code) {
+        Intent i = new Intent(PIP_ACTION).setPackage(getPackageName()).putExtra("cmd", cmd);
+        return PendingIntent.getBroadcast(this, code, i, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    @android.annotation.TargetApi(26)
+    PictureInPictureParams pipParams() {
+        ArrayList<RemoteAction> acts = new ArrayList<>();
+        acts.add(new RemoteAction(Icon.createWithResource(this, android.R.drawable.ic_media_previous), "Назад", "Назад", pipIntent("prev", 1)));
+        acts.add(new RemoteAction(Icon.createWithResource(this, playing ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play),
+                playing ? "Пауза" : "Играть", playing ? "Пауза" : "Играть", pipIntent("toggle", 2)));
+        acts.add(new RemoteAction(Icon.createWithResource(this, android.R.drawable.ic_media_next), "Дальше", "Дальше", pipIntent("next", 3)));
+        PictureInPictureParams.Builder b = new PictureInPictureParams.Builder().setAspectRatio(new Rational(16, 9)).setActions(acts);
+        if (android.os.Build.VERSION.SDK_INT >= 31) b.setAutoEnterEnabled(playing).setSeamlessResizeEnabled(false);
+        return b.build();
+    }
+
+    void updatePip() {
+        if (android.os.Build.VERSION.SDK_INT < 26) return;
+        try { setPictureInPictureParams(pipParams()); } catch (Exception ignored) { }
+    }
+
+    // Свернули приложение во время музыки — уменьшаем в окошко поверх других приложений
+    @Override
+    protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        if (playing && fullView == null && android.os.Build.VERSION.SDK_INT >= 26 && android.os.Build.VERSION.SDK_INT < 31) {
+            try { enterPictureInPictureMode(pipParams()); } catch (Exception ignored) { }
+        }
+    }
+
+    @Override
+    public void onPictureInPictureModeChanged(boolean inPip, Configuration cfg) {
+        super.onPictureInPictureModeChanged(inPip, cfg);
+        web.evaluateJavascript("window.volnaPip&&volnaPip(" + inPip + ")", null);
+        root.setPadding(0, 0, 0, 0);
+        if (!inPip) root.requestApplyInsets();
+    }
+
     // Сохранение записи из сайта в «Загрузки»
     class Bridge {
+        @JavascriptInterface
+        public void setPlaying(boolean p) {
+            runOnUiThread(() -> { playing = p; updatePip(); });
+        }
+
         @JavascriptInterface
         public boolean saveFile(String name, String mime, String b64) {
             try {
@@ -256,11 +324,25 @@ public class MainActivity extends Activity {
         web.saveState(out);
     }
 
+    boolean inPip() {
+        return android.os.Build.VERSION.SDK_INT >= 24 && isInPictureInPictureMode();
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
-        web.onPause();
         CookieManager.getInstance().flush();
+        if (!inPip()) web.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Окно «картинка в картинке» закрыли (или выключили экран) — ставим на паузу
+        if (!inPip()) {
+            web.evaluateJavascript("window.volnaCmd&&volnaCmd('pause')", null);
+            web.onPause();
+        }
     }
 
     @Override
@@ -271,6 +353,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        try { unregisterReceiver(pipRcv); } catch (Exception ignored) { }
         if (web != null) web.destroy();
         super.onDestroy();
     }
