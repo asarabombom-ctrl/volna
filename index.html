@@ -1588,8 +1588,11 @@ function radioMark(t){if(t.vid)radioSeen.add(t.vid);radioKeys.add(tkey(t))}
 async function radioFrom(seed){
  let v=seed.kind==='yt'?(ytalt[seed.vid]||seed.vid):S.ytmap[seed.id];
  if(!v&&seed.kind!=='local'){try{v=await resolveYT(seed)}catch{}}
- const pick=items=>{const out=[];for(const it of items){if(it.type!=='stream'||it.isShort||!(it.duration>60&&it.duration<720)||RADIO_BAD.test(it.title||''))continue;
-   const t=normP(it,!/ - Topic$/.test(it.uploaderName||''));if(!t||radioSeen.has(t.vid)||badVids.has(t.vid)||radioKeys.has(tkey(t)))continue;radioMark(t);out.push(t)}return out};
+ const pick=items=>{const out=[];for(const it of items){if(it.type!=='stream'||it.isShort||!(it.duration>60&&it.duration<480)||RADIO_BAD.test(it.title||''))continue;
+   const t=normP(it,!/ - Topic$/.test(it.uploaderName||''));if(!t||radioSeen.has(t.vid)||badVids.has(t.vid)||radioKeys.has(tkey(t)))continue;
+   // та же песня в другой версии (feat., live, remaster…) — пропускаем
+   if(S.queue.slice(-40).some(q=>sameSong(t,q)||sameSong(q,t))||out.some(q=>sameSong(t,q)||sameSong(q,t))){radioSeen.add(t.vid);continue}
+   radioMark(t);out.push(t)}return out};
  let out=[];
  if(v){try{const j=await piped('/streams/'+v);out=pick(j.relatedStreams||[])}catch{}}
  if(out.length<3&&seed.artist){try{const j=await piped(sPath(seed.artist+' песни','music_songs'));out.push(...pick(j.items||[]))}catch{}}
