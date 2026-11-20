@@ -420,9 +420,9 @@ html.pip #pipArt{display:flex;position:fixed;inset:0;z-index:9998;background:#00
 #pipArt b{font:700 11px Manrope,system-ui,sans-serif;max-width:92vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
 
 /* --- cover effects --- */
-.lstage[data-fx=sway] .lcov{transform-origin:50% 8%;transform:rotate(calc(var(--ph)*5deg)) translateY(calc(var(--beat)*-5px))}
-.lstage[data-fx=tilt] .lcov{transform:rotateY(calc(var(--ph)*14deg)) rotateX(calc(var(--beat)*6deg)) scale(calc(1 + var(--beat)*.02))}
-.lstage[data-fx=float] .lcov{transform:translateY(calc(var(--ph)*10px)) rotate(calc(var(--ph)*1.2deg))}
+.lstage[data-fx=sway] .lcov{transform-origin:50% 12%;transform:rotate(calc(var(--ph)*2.2deg))}
+.lstage[data-fx=tilt] .lcov{transform:rotateY(calc(var(--ph)*7deg)) rotateX(calc(var(--beat)*2.5deg))}
+.lstage[data-fx=float] .lcov{transform:translateY(calc(var(--ph)*6px)) rotate(calc(var(--ph)*.6deg))}
 .lstage[data-fx=off] .lcov{transform:none}
 .lstage:not([data-fx=pulse]) .lcov::after{display:none}
 .lstage[data-fx=float] .lcov::before,.lstage[data-fx=off] .lcov::before{opacity:.25}
@@ -1284,7 +1284,7 @@ async function loadBpm(t){
 }
 function wordStart(t){const L=S.lrc?.[S.lrcIdx];if(!L||!L.words)return null;let w=null;for(const x of L.words){if(x.t<=t)w=x.t;else break}return w}
 let beatOn=false,beatW=-1,beatLine=null;const stageEl=document.querySelector('.lstage');
-let phW=9;
+let phW=9;const sway={w:null,dir:1,tgt:0,ph:0,at:0};
 function phSet(v){if(Math.abs(v-phW)<.01)return;phW=v;stageEl.style.setProperty('--ph',v.toFixed(3))}
 function beatSet(v){if(Math.abs(v-beatW)<.012&&!(v===0&&beatW!==0))return;beatW=v;const x=v.toFixed(2);stageEl.style.setProperty('--beat',x);
  const ln=S.lineEls[S.lrcIdx+1]||null;if(ln!==beatLine){beatLine?.style.removeProperty('--beat');beatLine=ln}ln?.style.setProperty('--beat',x)}
@@ -1301,9 +1301,13 @@ function beatTick(){
   }
  }
  beat.env=Math.max(v,beat.env*.86);if(beat.env<.004)beat.env=0;
- // фаза качания: в такт (одно качание на два удара) или плавно по времени
- if(coverFx!=='pulse'&&coverFx!=='off'&&!perf.lite){const nowS=performance.now()/1000,play=S.cur&&!paused();
-  let ph;if(coverFx==='float')ph=Math.sin(nowS*1.3);else if(play&&beat.bpm&&isYT()){const P=60/beat.bpm;ph=Math.sin(Math.PI*(smoothT(performance.now())-beat.off)/P)}else ph=Math.sin(nowS*(play?2.6:1.2))*(play?1:.4);
+ // качание под текст: каждое новое слово — плавный наклон в другую сторону, в проигрышах — успокаивается
+ if(coverFx!=='pulse'&&coverFx!=='off'&&!perf.lite){const now=performance.now(),play=S.cur&&!paused();let ph;
+  if(coverFx==='float')ph=Math.sin(now/1000*1.1)*.8;
+  else{const w=play&&S.lrc?wordStart(smoothT(now)):null;
+   if(w!=null&&w!==sway.w){sway.w=w;sway.dir=-sway.dir;sway.tgt=sway.dir;sway.at=now}
+   if(!play||now-sway.at>1600)sway.tgt=0;
+   sway.ph+=(sway.tgt-sway.ph)*.06;ph=sway.ph}
   phSet(ph)}else phSet(0);
  beatSet(perf.lite?0:beat.env);
 }
