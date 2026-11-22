@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Волна для YouTube Music",
+  "short_name": "Волна",
+  "version": "1.0.0",
+  "description": "Караоке с текстом в такт, живая обложка и красивые темы для YouTube Music.",
+  "icons": { "16": "icons/16.png", "32": "icons/32.png", "48": "icons/48.png", "128": "icons/128.png" },
+  "action": { "default_title": "Волна — настройки", "default_popup": "popup.html", "default_icon": { "16": "icons/16.png", "32": "icons/32.png" } },
+  "permissions": ["storage", "unlimitedStorage"],
+  "host_permissions": ["https://lrclib.net/*", "https://api.deezer.com/*", "https://*.googleusercontent.com/*", "https://i.ytimg.com/*", "https://music.youtube.com/*"],
+  "background": { "service_worker": "bg.js" },
+  "content_scripts": [{
+    "matches": ["https://music.youtube.com/*"],
+    "js": ["content.js"],
+    "css": ["theme.css"],
+    "run_at": "document_idle"
+  }],
+  "web_accessible_resources": [{ "resources": ["bg/*", "icons/*"], "matches": ["https://music.youtube.com/*"] }],
+  "commands": {
+    "toggle-karaoke": { "suggested_key": { "default": "Alt+L" }, "description": "Открыть или закрыть караоке Волны" }
+  }
+}

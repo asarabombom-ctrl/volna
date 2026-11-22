@@ -1,0 +1,62 @@
+/* Волна — темы для YouTube Music. Включаются классом html.volna-theme */
+html.volna-theme { background: #07060b !important; }
+html.volna-theme body,
+html.volna-theme ytmusic-app,
+html.volna-theme ytmusic-browse-response,
+html.volna-theme ytmusic-search-page,
+html.volna-theme ytmusic-player-page#player-page { background: transparent !important; }
+
+#volna-bg { display: none; }
+html.volna-theme #volna-bg {
+  display: block; position: fixed; inset: -60px; z-index: -1; pointer-events: none;
+  background: #07060b var(--volna-img) center / cover no-repeat;
+  filter: blur(var(--volna-blur, 0px)) saturate(1.15);
+  transform: scale(1.04);
+  transition: background-image .6s;
+}
+html.volna-theme #volna-bg::after {
+  content: ""; position: absolute; inset: 0;
+  background:
+    radial-gradient(120% 90% at 85% 0%, color-mix(in srgb, var(--volna-acc) 22%, transparent), transparent 60%),
+    rgba(6, 5, 10, var(--volna-dim, .45));
+}
+
+/* полупрозрачные стеклянные панели */
+html.volna-theme #nav-bar-background,
+html.volna-theme #guide-wrapper,
+html.volna-theme #mini-guide-background {
+  background: rgba(10, 8, 16, var(--volna-panel, .55)) !important;
+  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+}
+html.volna-theme #player-bar-background,
+html.volna-theme ytmusic-miniplayer,
+html.volna-theme ytmusic-player-bar {
+  background: rgba(14, 11, 22, .72) !important;
+  -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px);
+}
+html.volna-theme #scrim { background: rgba(0, 0, 0, .35) !important; }
+
+/* акцентный цвет вместо красного */
+html.volna-theme {
+  --yt-spec-static-brand-red: var(--volna-acc);
+  --yt-spec-brand-background-solid: transparent;
+  --paper-slider-active-color: var(--volna-acc);
+  --paper-slider-knob-color: var(--volna-acc);
+  --paper-slider-knob-start-color: var(--volna-acc);
+  --ytmusic-play-button-icon-color: var(--volna-acc);
+}
+html.volna-theme ::selection { background: color-mix(in srgb, var(--volna-acc) 55%, transparent); }
+
+/* кнопка Волны в нижней панели */
+.volna-btn {
+  display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px 0 10px; margin: 0 10px 0 4px;
+  border: 0; border-radius: 999px; cursor: pointer; flex: none;
+  font: 700 13px/1 "YouTube Sans", Roboto, system-ui, sans-serif; color: #111;
+  background: linear-gradient(135deg, #fff, color-mix(in srgb, var(--volna-acc, #b67cff) 35%, #fff));
+  box-shadow: 0 4px 18px color-mix(in srgb, var(--volna-acc, #b67cff) 35%, transparent);
+  transition: transform .15s, box-shadow .2s;
+}
+.volna-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px color-mix(in srgb, var(--volna-acc, #b67cff) 55%, transparent); }
+.volna-btn svg { width: 18px; height: 18px; }
+.volna-btn.on { background: var(--volna-acc, #b67cff); color: #fff; }
+.volna-btn.float { position: fixed; right: 18px; bottom: 90px; z-index: 2147483000; height: 40px; }
