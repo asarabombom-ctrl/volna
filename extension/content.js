@@ -116,7 +116,7 @@
     host.style.pointerEvents = open ? 'auto' : 'none';
     root.querySelector('.vl').classList.toggle('open', open);
     btn?.classList.toggle('on', open);
-    if (open) { L.idx = -2; L.user = 0; if (cur) showTrack(); requestAnimationFrame(loop); }
+    if (open) { L.idx = -2; L.user = 0; if (cur) { showTrack(); if (!L.els.length) render(); } requestAnimationFrame(loop); }
   }
 
   /* ================= ТЕКУЩАЯ ПЕСНЯ ================= */
@@ -182,7 +182,7 @@
     return out;
   }
   async function loadLyrics(t, manual) {
-    const tok = ++L.tok; L.lrc = null; L.els = []; L.idx = -2; L.warn = '';
+    const tok = ++L.tok; L.lrc = null; L.els = []; L.idx = -2; L.warn = ''; L.hit = null; L.loading = true;
     if (root) setHTML($$('#body'), '<p class="msg">Ищу текст…</p>');
     const q = { artist: clean(manual?.artist ?? t.artist), title: clean(manual?.title ?? t.title) };
     let list = !manual && lyrCache.get(t.key);
@@ -197,11 +197,12 @@
       const delta = d && hit.duration ? d - hit.duration : 0;
       if (Math.abs(delta) > 4) L.warn = `Эта версия песни на ${Math.round(Math.abs(delta))} с ${delta > 0 ? 'длиннее' : 'короче'} текста — если слова не в такт, подвинь их кнопками ± вверху.`;
     } else hit = list.find((x) => x.plain) || null;
-    L.hit = hit; render();
+    L.hit = hit; L.loading = false; render();
   }
   function render() {
     if (!root) return;
     const body = $$('#body'), hit = L.hit;
+    if (L.loading) { setHTML(body, '<p class="msg">Ищу текст…</p>'); return; }
     if (!hit) { setHTML(body, `<p class="msg">${L.tok && cur ? 'Текст не найден. Нажми «Найти вручную» и уточни артиста и название.' : 'Включи песню — и текст побежит в такт.'}</p>`); return; }
     if (hit.synced) {
       L.lrc = parseLRC(hit.synced);
