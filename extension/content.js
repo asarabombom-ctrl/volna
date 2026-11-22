@@ -13,6 +13,8 @@
   const setHTML = (el, html) => { el.innerHTML = TT ? TT.createHTML(html) : html; };
   const fmt = (x) => { x = Math.max(0, Math.round(x)); return Math.floor(x / 60) + ':' + String(x % 60).padStart(2, '0'); };
 
+  let host = null, root = null, open = false, btn = null;
+
   /* ================= НАСТРОЙКИ ================= */
   const DEF = { theme: 'moon', acc: '', blur: 0, dim: 45, panel: 55, fx: 'sway', size: 100, customBg: '', autoOpen: false, btn: true };
   const THEMES = { none: { acc: '#ff4e45' }, moon: { acc: '#7aa7ff', img: 'bg/moon.jpg' }, sakura: { acc: '#ff7eb6', img: 'bg/sakura.jpg' }, neon: { acc: '#b67cff', img: 'bg/neon.jpg' }, forest: { acc: '#5fd39a', img: 'bg/forest.jpg' }, custom: { acc: '#ffd166' } };
@@ -62,7 +64,6 @@
   const playPause = () => { const v = video(); if (!v) return; v.paused ? v.play() : v.pause(); };
 
   /* ================= ОКНО КАРАОКЕ (Shadow DOM) ================= */
-  let host = null, root = null, open = false;
   const FX = [['pulse', 'Пульс'], ['sway', 'Качание'], ['tilt', '3D'], ['float', 'Плавно'], ['off', 'Без']];
   const MIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12c2-6 4-6 6 0s4 6 6 0 3-5 4-3"/></svg>';
 
@@ -284,7 +285,6 @@
   }
 
   /* ================= КНОПКА В ПАНЕЛИ YOUTUBE MUSIC ================= */
-  let btn = null;
   function placeBtn() {
     if (C.btn === false) { btn?.remove(); btn = null; return; }
     const slot = document.querySelector('.ytMusicMiniPlayerRightSection, ytmusic-player-bar .right-controls-buttons');

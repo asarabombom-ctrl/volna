@@ -7,7 +7,6 @@ chrome.runtime={lastError:null,getURL:p=>'https://asarabombom-ctrl.github.io/vol
   if(m.type==='lyrics'){const a=encodeURIComponent(m.artist),t=encodeURIComponent(m.title);const s=await fetch(`https://lrclib.net/api/search?artist_name=${a}&track_name=${t}`).then(x=>x.json());r=s.map(x=>({duration:x.duration,synced:x.syncedLyrics,plain:x.plainLyrics}));window.__lyrOk=r.length}
   else if(m.type==='bpm'){r=124}else if(m.type==='image'){r=null}}catch(e){window.__fetchErr=String(e)}cb&&cb(r)})()}};
 window.__volnaTheme=(o)=>chrome.storage.local.set(o);
-
 // Волна для YouTube Music — караоке на весь экран, живая обложка, темы
 (() => {
   if (window.__volnaExt) return;
@@ -22,6 +21,8 @@ window.__volnaTheme=(o)=>chrome.storage.local.set(o);
   try { TT = window.trustedTypes?.createPolicy?.('volna-ext', { createHTML: (x) => x }) || null; } catch { TT = null; }
   const setHTML = (el, html) => { el.innerHTML = TT ? TT.createHTML(html) : html; };
   const fmt = (x) => { x = Math.max(0, Math.round(x)); return Math.floor(x / 60) + ':' + String(x % 60).padStart(2, '0'); };
+
+  let host = null, root = null, open = false, btn = null;
 
   /* ================= НАСТРОЙКИ ================= */
   const DEF = { theme: 'moon', acc: '', blur: 0, dim: 45, panel: 55, fx: 'sway', size: 100, customBg: '', autoOpen: false, btn: true };
@@ -72,7 +73,6 @@ window.__volnaTheme=(o)=>chrome.storage.local.set(o);
   const playPause = () => { const v = video(); if (!v) return; v.paused ? v.play() : v.pause(); };
 
   /* ================= ОКНО КАРАОКЕ (Shadow DOM) ================= */
-  let host = null, root = null, open = false;
   const FX = [['pulse', 'Пульс'], ['sway', 'Качание'], ['tilt', '3D'], ['float', 'Плавно'], ['off', 'Без']];
   const MIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12c2-6 4-6 6 0s4 6 6 0 3-5 4-3"/></svg>';
 
@@ -294,7 +294,6 @@ window.__volnaTheme=(o)=>chrome.storage.local.set(o);
   }
 
   /* ================= КНОПКА В ПАНЕЛИ YOUTUBE MUSIC ================= */
-  let btn = null;
   function placeBtn() {
     if (C.btn === false) { btn?.remove(); btn = null; return; }
     const slot = document.querySelector('.ytMusicMiniPlayerRightSection, ytmusic-player-bar .right-controls-buttons');
