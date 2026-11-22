@@ -44,9 +44,6 @@ window.__volnaTheme=(o)=>chrome.storage.local.set(o);
     if (host) { host.style.setProperty('--acc', acc()); root.querySelector('.vl')?.style.setProperty('--size', (C.size || 100) / 100); fxUI(); }
     placeBtn();
   }
-  chrome.storage.local.get(DEF, (v) => { C = { ...DEF, ...v }; applyTheme(); });
-  chrome.storage.onChanged.addListener((ch) => { for (const k in ch) C[k] = ch[k].newValue; applyTheme(); });
-  ext.onMessage.addListener((m) => { if (m?.type === 'toggle') toggle(); if (m?.type === 'open') toggle(true); });
 
   /* ================= ПЛЕЕР YOUTUBE MUSIC ================= */
   const video = () => document.querySelector('video');
@@ -380,6 +377,11 @@ main{position:relative;flex:1;display:flex;min-height:0}
 @media(max-width:900px){.stage{display:none}.th{width:44px;height:44px}}
 @media(prefers-reduced-motion:reduce){.cov,.ly.on{transform:none!important}}
 `;
+
+  /* ================= ЗАПУСК ================= */
+  chrome.storage.local.get(DEF, (v) => { C = { ...DEF, ...v }; applyTheme(); });
+  chrome.storage.onChanged.addListener((ch) => { for (const k in ch) C[k] = ch[k].newValue; applyTheme(); });
+  ext.onMessage.addListener((m) => { if (m?.type === 'toggle') toggle(); if (m?.type === 'open') toggle(true); });
 })();
 
 })();
